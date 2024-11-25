@@ -1,0 +1,81 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+.login-container {
+    display: flex;
+    height: 100vh;
+}
+
+.login-image {
+    flex: 1;
+    background-image: url('../images/login-image.jpg'); /* Pastikan gambar ada di direktori ini */
+    background-size: cover;
+    background-position: center;
+}
+
+.login-form-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-logo a {
+    color: #2F7BAC;
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-body {
+    border-radius: 10px;
+}
+
+.input-group .form-control {
+    border-radius: 30px;
+    padding: 10px;
+}
+
+.input-group-append .input-group-text {
+    border-radius: 0 30px 30px 0;
+}
+
+.btn-primary {
+    border-radius: 30px;
+    background-color: #2F7BAC;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #255e73;
+}
+
+.login-box-msg {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.icheck-primary label {
+    color: #555;
+}
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px; /* Anda bisa mengubah nilai ini sesuai kebutuhan */
+}
+
+.flex-item {
+    margin: 0; /* Menghilangkan margin default */
+}
