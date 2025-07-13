@@ -11,7 +11,7 @@
 }
 
 body {
-  background: #dfdfdf;
+  background: #c0a2a2;
 }
 
 .wrapper {
@@ -63,14 +63,14 @@ body {
   margin: 5px;
   padding: 5px 10px;
   font-size: 14px;
-  color: #2d71a1;
+  color: #81888d;
   text-transform: uppercase;
   letter-spacing: 2px;
   cursor: pointer;
 }
 
 .wrapper .right .tabs ul li.active {
-  border-bottom: 2px solid #2d71a1;
+  border-bottom: 2px solid #e0e9f0;
 }
 
 .wrapper .right .register,
@@ -87,12 +87,12 @@ body {
   padding: 10px 15px;
   border: 0;
   font-size: 12px;
-  background: #ecebeb;
+  background: #ffe2e2;
 }
 
 .wrapper .right .btn {
   margin-top: 20px;
-  background: #2d71a1;
+  background: #f1f9ff;
   padding: 10px;
   text-align: center;
   text-transform: uppercase;

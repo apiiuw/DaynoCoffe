@@ -28,7 +28,14 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="category">Jenis Tagihan:</label>
-                                        <input type="text" class="form-control" id="category" name="category" required>
+                                        <select class="form-control" id="category" name="category" required>
+                                            <option value="">-- Pilih Kategori --</option>
+                                            <option value="Listrik">Listrik</option>
+                                            <option value="Air">Air</option>
+                                            <option value="Wifi">Internet / Wifi</option>
+                                            <option value="Sampah">Biaya Sampah / Kebersihan Lingkungan</option>
+                                            <option value="Lain-Lain">Lain-Lain</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="amount">Jumlah:</label>

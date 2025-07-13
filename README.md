@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Capstone project milik Kelompok 5, dari kelas FS1.
 
 -   Andhika Pratama Putra
@@ -21,3 +22,6 @@ Proyek ini bertujuan untuk membantu Anda dalam mencatat keuangan Anda dengan mud
 1. Buka repository di lokal menggunakan git bash
 2. git remote add origin https://github.com/TrainerFS1/Pencatatan-Keuangan-App.git
 3. git push origin master
+=======
+# DaynoKopi
+>>>>>>> a09d889c99e107fc93bca3a4e491d121a8407751

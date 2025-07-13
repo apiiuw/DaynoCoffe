@@ -105,8 +105,6 @@
                                                             method="POST" style="display:inline-block;">
                                                             @csrf
                                                             @method('PUT')
-                                                            <button type="submit" class="btn btn-success">Tandai
-                                                                Lunas</button>
                                                         </form>
                                                     @else
                                                         <!-- Hapus notifikasi terkait jika status lunas -->
@@ -141,18 +139,21 @@
                     </div>
                 </div>
                 <!-- Chart Section -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Diagram Tagihan per Bulan</h3>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="billChart"></canvas>
-                            </div>
-                        </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Diagram Tagihan</h3>
                     </div>
-                </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="billViewSelector">Tampilan Data:</label>
+                            <select id="billViewSelector" class="form-control" style="max-width: 200px;">
+                                <option value="monthly" selected>Per Bulan</option>
+                                <option value="daily">Per Hari</option>
+                            </select>
+                        </div>
+        <canvas id="billChart"></canvas>
+    </div>
+</div>
             </div>
         </section>
     </div>
@@ -232,28 +233,54 @@
     <!-- Chart.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var ctx = document.getElementById('billChart').getContext('2d');
-            var billChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($months) !!},
-                    datasets: [{
-                        label: 'Tagihan',
-                        data: {!! json_encode($billData->values()) !!},
-                        borderColor: 'rgba(255, 1, 0, 1)',
-                        backgroundColor: 'rgba(255, 1, 0, 0.2)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('billChart').getContext('2d');
+
+        const monthlyData = {
+            labels: {!! json_encode($months) !!},
+            datasets: [{
+                label: 'Tagihan Bulanan',
+                data: {!! json_encode($billData->values()) !!},
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true
+            }]
+        };
+
+    const dailyData = {
+        labels: {!! json_encode($dailyBillLabels) !!},
+        datasets: [{
+            label: 'Tagihan Harian',
+            data: {!! json_encode($dailyBillValues) !!},
+            borderColor: 'rgba(255, 159, 64, 1)',
+            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            fill: true
+        }]
+    };
+
+    const config = {
+        type: 'line',
+        data: monthlyData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-            });
-        });
-    </script>
+            }
+        }
+    };
+
+    const billChart = new Chart(ctx, config);
+
+    document.getElementById('billViewSelector').addEventListener('change', function () {
+        if (this.value === 'daily') {
+            billChart.data = dailyData;
+        } else {
+            billChart.data = monthlyData;
+        }
+        billChart.update();
+    });
+});
+</script>
 @endpush

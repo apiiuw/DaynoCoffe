@@ -9,9 +9,6 @@
         </div>
         <div class="login-form-container" style="flex: 1; display: flex; align-items: center; justify-content: center;">
             <div class="login-box" style="width: 100%; max-width: 400px;">
-                <div class="login-logo">
-                    <a href="{{ route('home') }}" style="color: #3490dc; font-weight: 700; font-size: 2rem;">{{ config('app.name', 'Laravel') }}</a>
-                </div>
                 <div class="card" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                     <div class="card-body register-card-body" style="border-radius: 10px;">
                         <p class="login-box-msg" style="font-size: 1.2rem; color: #555;">Register</p>

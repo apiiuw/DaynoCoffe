@@ -80,7 +80,7 @@
                                         @foreach ($debts as $debt)
                                             <tr>
                                                 <td>{{ $loop->iteration + ($debts->currentPage() - 1) * $debts->perPage() }}</td>
-                                                <td>{{ $debt->debt_type }}</td>
+                                                <td>{{ $debt->category }}</td>
                                                 <td>{{ date('d-m-Y', strtotime($debt->date)) }}</td>                                                
                                                 <td>Rp {{ number_format($debt->amount, 0, ',', '.') }}</td>
                                                 <td>{{ date('d-m-Y', strtotime($debt->due_date)) }}</td>       
@@ -109,19 +109,15 @@
                     </div>
                 </div>
                 <!-- Chart Section -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Diagram Hutang per Bulan</h3>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="debtChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-group mb-3">
+                    <label for="viewSelector">Tampilan Data:</label>
+                    <select id="viewSelector" class="form-control" style="max-width: 200px;">
+                        <option value="monthly" selected>Per Bulan</option>
+                        <option value="daily">Per Hari</option>
+                    </select>
                 </div>
-            </div>
+                <canvas id="debtChart"></canvas>
+
     </div>
     </section>
     </div>
@@ -166,28 +162,55 @@
     <!-- Chart.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var ctx = document.getElementById('debtChart').getContext('2d');
-            var debtChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($months) !!},
-                    datasets: [{
-                        label: 'Hutang',
-                        data: {!! json_encode($debtData->values()) !!},
-                        borderColor: 'rgba(255, 111, 0, 1)',
-                        backgroundColor: 'rgba(255, 111, 0, 0.2)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('debtChart').getContext('2d');
+
+        const monthlyLabels = {!! json_encode($months) !!};
+        const monthlyData = {!! json_encode($debtData->values()) !!};
+
+        const dailyLabels = {!! json_encode($dailyDebtLabels) !!};
+        const dailyData = {!! json_encode($dailyDebtValues) !!};
+
+        let currentType = 'monthly';
+
+        let debtChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Hutang',
+                    data: monthlyData,
+                    borderColor: 'rgba(255, 111, 0, 1)',
+                    backgroundColor: 'rgba(255, 111, 0, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            });
+            }
         });
-    </script>
+
+        document.getElementById('viewSelector').addEventListener('change', function () {
+            const selected = this.value;
+            if (selected === 'daily' && currentType !== 'daily') {
+                debtChart.data.labels = dailyLabels;
+                debtChart.data.datasets[0].data = dailyData;
+                currentType = 'daily';
+            } else if (selected === 'monthly' && currentType !== 'monthly') {
+                debtChart.data.labels = monthlyLabels;
+                debtChart.data.datasets[0].data = monthlyData;
+                currentType = 'monthly';
+            }
+            debtChart.update();
+        });
+    });
+</script>
+
+
+
 @endpush

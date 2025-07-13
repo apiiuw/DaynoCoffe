@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\ManageMenuController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\BillController;
@@ -9,6 +10,11 @@ use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OwnerDashboardController;
+use App\Http\Controllers\KasirDashboardController;
+use App\Http\Controllers\ManagerDashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -25,22 +31,45 @@ Route::get('/', function () {
     return view('Landing Page.index');
 });
 
-Route::get('/fitur', function () {
-    return view('Landing Page.fitur');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+    Route::middleware('role:owner')->group(function () {
+        Route::get('/dashboard/owner', [OwnerDashboardController::class, 'index'])->name('dashboard.owner');
+    });
+
+    Route::middleware('role:kasir')->group(function () {
+        Route::get('/dashboard/kasir', [KasirDashboardController::class, 'index'])->name('dashboard.kasir');
+    });
+
+    Route::middleware('role:manager')->group(function () {
+        Route::get('/dashboard/manager', [ManagerDashboardController::class, 'index'])->name('dashboard.manager');
+    });
 });
 
-Route::get('/about', function () {
-    return view('Landing Page.about');
+Route::middleware(['auth', 'role:manager'])->group(function () {
+    Route::get('/dashboard/manager', [ManagerDashboardController::class, 'index'])->name('dashboard.manager');
+
+    // Pengeluaran
+    Route::get('/pengeluaran/create', [PengeluaranController::class, 'create'])->name('pengeluaran.create');
+
+    // Tagihan
+    Route::get('/tagihan', [TagihanController::class, 'index'])->name('tagihan.index');
+    Route::get('/tagihan/create', [TagihanController::class, 'create'])->name('tagihan.create');
+
+    // Hutang
+    Route::get('/hutang', [HutangController::class, 'index'])->name('hutang.index');
+    Route::get('/hutang/create', [HutangController::class, 'create'])->name('hutang.create');
 });
 
-Route::get('/contact', function () {
-    return view('Landing Page.contact');
+Route::middleware(['auth', 'role:owner'])->group(function () {
+    Route::get('/dashboard/owner', [OwnerDashboardController::class, 'index'])->name('dashboard.owner');
 });
 
 // untuk menangani register
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     //Route Profile
@@ -48,12 +77,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/profile/update', [UserProfileController::class, 'update'])->name('profile.update');
 
     //Route Income
+    Route::get('/daily-income-chart', [IncomeController::class, 'dailyIncomeChart'])->name('daily.income.chart');
     Route::get('/income', [IncomeController::class, 'index'])->name('index.income');
     Route::get('/form-income', [IncomeController::class, 'create'])->name('create.income');
     Route::post('/store-income', [IncomeController::class, 'store'])->name('store.income');
     Route::get('/edit-income/{id}', [IncomeController::class, 'edit'])->name('edit.income');
     Route::delete('/delete-income/{id}', [IncomeController::class, 'destroy'])->name('delete.income');
     Route::put('/update-income/{id}', [IncomeController::class, 'update'])->name('update.income');
+
+    // Route Manage Menu
+    Route::get('/manage-menu', [ManageMenuController::class, 'index'])->name('manage-menu.index');
+    Route::get('/manage-menu/{id}/edit', [ManageMenuController::class, 'edit'])->name('manage-menu.edit');
+    Route::put('/manage-menu/{id}', [ManageMenuController::class, 'update'])->name('manage-menu.update');
+    Route::delete('/manage-menu/{id}', [ManageMenuController::class, 'destroy'])->name('manage-menu.destroy');
+    Route::get('/manage-menu/create', [ManageMenuController::class, 'create'])->name('manage-menu.create');
+    Route::post('/manage-menu', [ManageMenuController::class, 'store'])->name('manage-menu.store');
 
     //Route Expense
     Route::get('/expense', [ExpenseController::class, 'index'])->name('index.expense');

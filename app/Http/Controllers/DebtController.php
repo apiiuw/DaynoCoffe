@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;  
 use App\Models\debt;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -12,42 +12,68 @@ class DebtController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+     public function index(Request $request)
     {
         $user = Auth::user();
+
         // Default sort field and direction
         $sortField = $request->query('field', 'date');
-        $sortDirection = $request->query('sort', 'asc') == 'asc' ? 'asc' : 'desc';
+        $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
 
-        // Validate sort field to prevent SQL injection
+        // Validasi field sort untuk mencegah SQL injection
         $validSortFields = ['date', 'amount'];
         if (!in_array($sortField, $validSortFields)) {
             $sortField = 'date';
         }
 
-        // Retrieve sorted debts
+        // Ambil data hutang yang disortir
         $debts = Debt::where('user_id', $user->id)
             ->orderBy($sortField, $sortDirection)
             ->paginate(5);
 
-        // Menghitung total hutang
+        // Hitung total hutang
         $totalDebt = Debt::where('user_id', $user->id)->sum('amount');
 
+        // Konfirmasi delete
         $title = 'Delete Data!';
         $text = "Anda yakin ingin menghapus?";
         confirmDelete($title, $text);
 
-        // Group debt data by month and calculate total debt for each month
+        // Data bulanan untuk chart
         $debtData = $debts->groupBy(function ($debt) {
             return Carbon::parse($debt->date)->format('F Y');
         })->map(function ($groupedDebts) {
             return $groupedDebts->sum('amount');
         });
 
-        // Months for chart labels
         $months = $debtData->keys()->toArray();
+        // Ambil semua data hutang (bukan dari $debts paginated)
+$allDebts = Debt::where('user_id', $user->id)->get();
 
-        return view('debt.index', compact('debts', 'totalDebt', 'debtData', 'sortField', 'sortDirection', "months"));
+// Harian
+$start = Carbon::now()->subDays(30);
+$end = Carbon::now();
+
+$dailyDebtRaw = Debt::where('user_id', $user->id)
+    ->whereBetween('date', [$start, $end])
+    ->select(DB::raw('DATE(date) as day'), DB::raw('SUM(amount) as total'))
+    ->groupBy('day')
+    ->orderBy('day')
+    ->get();
+
+$dailyDebtLabels = $dailyDebtRaw->pluck('day');
+$dailyDebtValues = $dailyDebtRaw->pluck('total');
+
+        return view('debt.index', compact(
+            'debts',
+            'totalDebt',
+            'debtData',
+            'sortField',
+            'sortDirection',
+            'months',
+            'dailyDebtLabels',
+            'dailyDebtValues'
+        ));
     }
 
     /**
@@ -65,7 +91,7 @@ class DebtController extends Controller
     {
         // validasi input
         $request->validate([
-            'debt_type' => 'required|string',
+            'category' => 'required|string',
             'date' => 'required|date',
             'amount' => 'required|numeric',
             'due_date' => 'required|date',
@@ -77,7 +103,7 @@ class DebtController extends Controller
         // buat objek hutang
         $debt = new Debt();
         $debt->user_id = auth()->id();
-        $debt->debt_type = $request->input('debt_type');
+        $debt->category = $request->input('category');
         $debt->date = $request->input('date');
         $debt->amount = $request->input('amount');
         $debt->due_date = $request->input('due_date');

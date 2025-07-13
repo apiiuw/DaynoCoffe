@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
+use Carbon\CarbonPeriod;
 use App\Models\bill;
 use App\Notifications\BillReminderNotification;
 use Carbon\Carbon;
@@ -15,46 +16,66 @@ class BillController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        $user = Auth::user();
-        // Field dan arah sort default
-        $sortField = $request->query('field', 'date');
-        $sortDirection = $request->query('sort', 'asc') == 'asc' ? 'asc' : 'desc';
+public function index(Request $request)
+{
+    $user = Auth::user();
+    
+    // Field dan arah sort default
+    $sortField = $request->query('field', 'date');
+    $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
 
-        // Validasi field sort untuk mencegah SQL injection
-        $validSortFields = ['date', 'amount'];
-        if (!in_array($sortField, $validSortFields)) {
-            $sortField = 'date';
-        }
-
-        // Ambil data tagihan yang sudah di-sort
-        $bills = Bill::where('user_id', $user->id)
-            ->orderBy($sortField, $sortDirection)
-            ->paginate(5);
-
-        // Menghitung total tagihan
-        $totalBill = Bill::where('user_id', $user->id)->sum('amount');
-
-        $title = 'Delete Data!';
-        $text = "Anda yakin ingin menghapus?";
-        confirmDelete($title, $text);
-
-        // Group data tagihan per bulan dan hitung total tagihan setiap bulan
-        $billData = $bills->groupBy(function ($bill) {
-            return Carbon::parse($bill->date)->format('F Y');
-        })->map(function ($groupedBills) {
-            return $groupedBills->sum('amount');
-        });
-
-        // Bulan untuk label chart
-        $months = $billData->keys()->toArray();
-
-        // Panggil metode untuk mengirim notifikasi tagihan
-        $this->sendBillReminders();
-
-        return view('bill.index', compact('bills', 'totalBill', 'billData', 'sortField', 'sortDirection', 'months'));
+    // Validasi field sort
+    $validSortFields = ['date', 'amount'];
+    if (!in_array($sortField, $validSortFields)) {
+        $sortField = 'date';
     }
+
+    // Ambil data tagihan yang sudah di-sort
+    $bills = Bill::where('user_id', $user->id)
+        ->orderBy($sortField, $sortDirection)
+        ->paginate(5);
+
+    // Total tagihan
+    $totalBill = Bill::where('user_id', $user->id)->sum('amount');
+
+    $title = 'Delete Data!';
+    $text = "Anda yakin ingin menghapus?";
+    confirmDelete($title, $text);
+
+    // ==== Chart Bulanan ====
+    $allBills = Bill::where('user_id', $user->id)->get(); // untuk chart
+
+    $billData = $allBills->groupBy(function ($bill) {
+        return Carbon::parse($bill->date)->format('F Y');
+    })->map(function ($groupedBills) {
+        return $groupedBills->sum('amount');
+    });
+
+    $months = $billData->keys()->toArray();
+
+    // ==== Chart Harian (30 hari terakhir) ====
+    $start = Carbon::now()->subDays(30)->startOfDay();
+    $end = Carbon::now()->endOfDay();
+
+    $dailyBillRaw = Bill::where('user_id', $user->id)
+        ->whereBetween('date', [$start, $end])
+        ->select(DB::raw('DATE(date) as day'), DB::raw('SUM(amount) as total'))
+        ->groupBy('day')
+        ->orderBy('day')
+        ->get();
+
+    $dailyBillLabels = $dailyBillRaw->pluck('day');
+    $dailyBillValues = $dailyBillRaw->pluck('total');
+
+    // Kirim notifikasi jika ada
+    $this->sendBillReminders();
+
+    return view('bill.index', compact(
+        'bills', 'totalBill', 'billData', 'months',
+        'dailyBillLabels', 'dailyBillValues',
+        'sortField', 'sortDirection'
+    ));
+}
 
     /**
      * Show the form for creating a new resource.

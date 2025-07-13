@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Contracts\LoginResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -62,6 +63,26 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::verifyEmailView(function () {
             return view('auth.verify');
+        });
+
+        // Tambahkan redirect setelah login berdasarkan role
+        $this->app->singleton(LoginResponse::class, function () {
+            return new class implements LoginResponse {
+                public function toResponse($request)
+                {
+                    $role = auth()->user()->role;
+
+                    if ($role === 'owner') {
+                        return redirect()->route('dashboard.owner');
+                    } elseif ($role === 'kasir') {
+                        return redirect()->route('dashboard.kasir');
+                    } elseif ($role === 'manager') {
+                        return redirect()->route('dashboard.manager');
+                    }
+
+                    return redirect('/home');
+                }
+            };
         });
     }
 }

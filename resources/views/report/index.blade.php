@@ -13,6 +13,9 @@
                 </div>
             </div>
         </div>
+        @if(empty($reportData))
+    <p class="text-danger">Data laporan kosong atau tidak tersedia.</p>
+@endif
 
         <section class="content">
             <div class="container-fluid">

@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
-    <title>Uangku | Pencatatan Keuangan</title>
+    <title>Kelompok 5 | Pencatatan Keuangan</title>
     <meta content="" name="description" />
     <meta content="" name="keywords" />
 
@@ -42,10 +42,7 @@
     <header id="header" class="fixed-top d-flex align-items-center">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="logo d-flex align-items-center">
-                <a href="index.html" class="logo-img">
-                    <img src="assetsLanding/img/logo.png" alt="Logo" class="img-fluid" />
-                </a>
-                <h1><a href="index.html" class="align-items-center">Uangku</a></h1>
+                <h1><a href="index.html" class="align-items-center">Kelompok 5</a></h1>
             </div>
 
             <!-- navbar Section -->
@@ -86,11 +83,11 @@
                     <div class="col-12">
                         <div class="row justify-content-center">
                             <div class="col-md-7 text-center hero-text">
-                                <h1 data-aos="fade-up" data-aos-delay="">Fitur Uangku</h1>
+                                <h1 data-aos="fade-up" data-aos-delay="">Fitur Aplikasi  Kami</h1>
                                 <p class="mb-5" data-aos="fade-up" data-aos-delay="100">
-                                    Aplikasi Uangku menawarkan berbagai fitur unggulan yang memudahkan pengguna dalam
+                                    Aplikasi Kami menawarkan berbagai fitur unggulan yang memudahkan pengguna dalam
                                     melakukan berbagai transaksi keuangan sehari-hari. Berikut adalah deskripsi dari
-                                    fitur-fitur utama yang tersedia dalam aplikasi Uangku:
+                                    fitur-fitur utama yang tersedia dalam aplikasi kami:
                                 </p>
                             </div>
                         </div>
@@ -176,7 +173,7 @@
             <div class="container">
                 <div class="row justify-content-center text-center mb-5">
                     <div class="col-md-4">
-                        <h2 class="section-heading">Review Pengguna Aplikasi Uangku</h2>
+                        <h2 class="section-heading">Review Pengguna Aplikasi Kami</h2>
                     </div>
                 </div>
                 <div class="row justify-content-center text-center">
@@ -195,7 +192,7 @@
                                         <h3>Pencatatan Otomatis yang Akurat</h3>
                                         <blockquote>
                                             <p>
-                                                Saya suka bagaimana Uangku bisa mengintegrasikan akun bank saya dan
+                                                Saya suka bagaimana aplikasinya bisa mengintegrasikan akun bank saya dan
                                                 secara otomatis mencatat semua transaksi saya. Hal ini sangat membantu
                                                 karena saya tidak perlu lagi mencatat setiap pengeluaran secara manual.
                                                 Semua transaksi saya dari berbagai akun terdata dengan akurat di satu
@@ -256,7 +253,7 @@
                                         <h3>Antarmuka Pengguna yang Intuitif</h3>
                                         <blockquote>
                                             <p>
-                                                Antarmuka pengguna Uangku sangat bersih dan mudah dinavigasi. Sebagai
+                                                Antarmuka pengguna Aplikasi sangat bersih dan mudah dinavigasi. Sebagai
                                                 seseorang yang tidak terlalu teknis, saya menghargai bagaimana setiap
                                                 fitur dan opsi mudah diakses dan digunakan. Tidak ada kurva pembelajaran
                                                 yang curam, dan saya bisa mulai menggunakan aplikasi ini dengan segera.
@@ -308,7 +305,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4 mb-md-0">
-                    <h3>Tentang Uangku</h3>
+                    <h3>Tentang Aplikasi Kami</h3>
                     <p>
                         Uangku adalah aplikasi pencatatan keuangan pribadi yang dirancang untuk membantu pengguna
                         mengelola pengeluaran dan pendapatan mereka dengan lebih efektif dan efisien. Aplikasi ini
@@ -341,20 +338,6 @@
                                 <a href="#"><span class="bi bi-instagram"></span></a>
                             </ul>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row justify-content-center text-center">
-                <div class="col-md-7">
-                    <p class="copyright">&copy; Copyright Uangku. All Rights Reserved</p>
-                    <div class="credits">
-                        <!--
-            All the links in the footer should remain intact.
-            You can delete the links only if you purchased the pro version.
-            Licensing information: https://bootstrapmade.com/license/
-            Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=SoftLand
-          -->
-                        Designed by <a href="https://bootstrapmade.com/">GAMELAB INDONESIA</a>
                     </div>
                 </div>
             </div>

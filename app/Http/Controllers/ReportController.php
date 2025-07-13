@@ -2,49 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Income;
-use App\Models\expense;
-use App\Models\debt;
-use App\Models\bill;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Carbon\CarbonPeriod;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Income;
+use App\Models\Expense;
+use App\Models\Debt;
+use App\Models\Bill;
+use Carbon\Carbon;
 use PDF;
-
 
 class ReportController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        // Fetch data grouped by month
-        $incomeData = Income::where('user_id', $user->id)
-        ->get()
-        ->groupBy(function ($income) {
-            return Carbon::parse($income->date)->format('Y-m');
+        // Ambil semua data tanpa filter user_id
+        $incomeData = Income::all()->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m');
         });
 
-        $expenseData = Expense::where('user_id', $user->id)
-            ->get()
-            ->groupBy(function ($expense) {
-                return Carbon::parse($expense->date)->format('Y-m');
-            });
+        $expenseData = Expense::all()->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m');
+        });
 
-        $debtData = Debt::where('user_id', $user->id)
-            ->get()
-            ->groupBy(function ($debt) {
-                return Carbon::parse($debt->date)->format('Y-m');
-            });
+        $debtData = Debt::all()->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m');
+        });
 
-        $billData = Bill::where('user_id', $user->id)
-            ->get()
-            ->groupBy(function ($bill) {
-                return Carbon::parse($bill->date)->format('Y-m');
-            });
+        $billData = Bill::all()->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m');
+        });
 
-        // Calculate totals for each month
-        $reportData = [];
+        // Gabungkan semua bulan unik dari keempat sumber
         $allMonths = array_unique(array_merge(
             $incomeData->keys()->toArray(),
             $expenseData->keys()->toArray(),
@@ -52,10 +39,8 @@ class ReportController extends Controller
             $billData->keys()->toArray()
         ));
 
-        $totalIncome = 0;
-        $totalExpense = 0;
-        $totalDebt = 0;
-        $totalBill = 0;
+        $reportData = [];
+        $totalIncome = $totalExpense = $totalDebt = $totalBill = 0;
 
         foreach ($allMonths as $month) {
             $incomeSum = $incomeData->get($month, collect())->sum('amount');
@@ -76,43 +61,30 @@ class ReportController extends Controller
             $totalBill += $billSum;
         }
 
-        ksort($reportData); // Sort by month
+        ksort($reportData);
 
         return view('report.index', compact('reportData', 'totalIncome', 'totalExpense', 'totalDebt', 'totalBill'));
-    
     }
 
     public function downloadPDF()
     {
-        $user = Auth::user();
+        // Ambil semua data tanpa filter user_id
+        $incomeData = Income::all()->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m');
+        });
 
-        // Fetch data grouped by month
-        $incomeData = Income::where('user_id', $user->id)
-            ->get()
-            ->groupBy(function ($income) {
-                return Carbon::parse($income->date)->format('Y-m');
-            });
+        $expenseData = Expense::all()->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m');
+        });
 
-        $expenseData = Expense::where('user_id', $user->id)
-            ->get()
-            ->groupBy(function ($expense) {
-                return Carbon::parse($expense->date)->format('Y-m');
-            });
+        $debtData = Debt::all()->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m');
+        });
 
-        $debtData = Debt::where('user_id', $user->id)
-            ->get()
-            ->groupBy(function ($debt) {
-                return Carbon::parse($debt->date)->format('Y-m');
-            });
+        $billData = Bill::all()->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m');
+        });
 
-        $billData = Bill::where('user_id', $user->id)
-            ->get()
-            ->groupBy(function ($bill) {
-                return Carbon::parse($bill->date)->format('Y-m');
-            });
-
-        // Calculate totals for each month
-        $reportData = [];
         $allMonths = array_unique(array_merge(
             $incomeData->keys()->toArray(),
             $expenseData->keys()->toArray(),
@@ -120,10 +92,8 @@ class ReportController extends Controller
             $billData->keys()->toArray()
         ));
 
-        $totalIncome = 0;
-        $totalExpense = 0;
-        $totalDebt = 0;
-        $totalBill = 0;
+        $reportData = [];
+        $totalIncome = $totalExpense = $totalDebt = $totalBill = 0;
 
         foreach ($allMonths as $month) {
             $incomeSum = $incomeData->get($month, collect())->sum('amount');
@@ -144,12 +114,9 @@ class ReportController extends Controller
             $totalBill += $billSum;
         }
 
-        ksort($reportData); // Sort by month
-
-        // Get current date and time
+        ksort($reportData);
         $currentDateTime = Carbon::now()->format('d F Y H:i');
 
-        // Generate PDF
         $pdf = PDF::loadView('report.pdf', compact('reportData', 'totalIncome', 'totalExpense', 'totalDebt', 'totalBill', 'currentDateTime'));
 
         return $pdf->download('laporan_keuangan.pdf');

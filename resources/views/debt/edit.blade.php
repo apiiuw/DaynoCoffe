@@ -29,9 +29,13 @@
                                     @csrf
                                     @method('PUT')
                                     <div class="form-group">
-                                        <label for="debt_type">Jenis Hutang</label>
-                                        <input type="text" class="form-control" id="debt_type" name="debt_type"
-                                            value="{{ $debt->debt_type }}" required>
+                                        <label for="category">Jenis Hutang</label>
+                                        <option value="">-- Pilih Kategori --</option>
+                                            <option value="supplier">Hutang Supplier Bahan</option>
+                                            <option value="Peralatan">Hutang Peralatan</option>
+                                            <option value="gajiTertunda">Hutang Gaji Karyawan</option>
+                                            <option value="Bank">Hutang Ke bang</option>
+                                            <option value="HutangLain">Lain-Lain</option>
                                     </div>
                                     <div class="form-group">
                                         <label for="date">Tanggal</label>

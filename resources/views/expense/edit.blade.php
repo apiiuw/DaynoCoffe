@@ -35,8 +35,15 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="category">Kategori</label>
-                                        <input type="text" class="form-control" id="category" name="category"
-                                            value="{{ $expense->category }}" required>
+                                        <select class="form-control" id="category" name="category" required>
+                                            <option value="">-- Pilih Kategori --</option>
+                                            <option value="Bahan">Bahan & Persediaan</option>
+                                            <option value="Gaji Karyawan">Gaji Karyawan</option>
+                                            <option value="Biaya Promosi">Biaya Promosi</option>
+                                            <option value="Pemeliharaan & Peralatan">Pemeliharaan & Peralatan</option>
+                                            <option value="Lain-Lain">Lain-Lain</option>
+                                        </select>
+
                                     </div>
                                     <div class="form-group">
                                         <label for="amount">Jumlah</label>

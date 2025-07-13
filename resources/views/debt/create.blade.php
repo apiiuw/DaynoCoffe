@@ -29,7 +29,14 @@
                                     @csrf
                                     <div class="form-group">
                                         <label for="category">Jenis Hutang</label>
-                                        <input type="text" class="form-control" id="debt_type" name="debt_type" required>
+                                        <select class="form-control" id="category" name="category" required>
+                                            <option value="">-- Pilih Kategori --</option>
+                                                <option value="Hutang Supplier">Hutang Supplier Bahan</option>
+                                                <option value="Hutang Peralatan">Hutang Peralatan</option>
+                                                <option value="Hutang Gaji">Hutang Gaji Karyawan</option>
+                                                <option value="Hutang Bank">Hutang ke Bank</option>
+                                                <option value="Hutang Lain-Lain">Lain-Lain</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="date">Tanggal</label>

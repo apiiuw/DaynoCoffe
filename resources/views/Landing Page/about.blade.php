@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
-    <title>Uangku | Pencatatan Keuangan</title>
+    <title>Kelompok 5 | Pencatatan Keuangan</title>
     <meta content="" name="description" />
     <meta content="" name="keywords" />
 
@@ -42,10 +42,7 @@
     <header id="header" class="fixed-top d-flex align-items-center">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="logo d-flex align-items-center">
-                <a href="index.html" class="logo-img">
-                    <img src="assetsLanding/img/logo.png" alt="Logo" class="img-fluid" />
-                </a>
-                <h1><a href="index.html" class="align-items-center">Uangku</a></h1>
+                <h1><a href="index.html" class="align-items-center">Kelompok 5</a></h1>
             </div>
 
             <!-- navbar section -->
@@ -85,9 +82,7 @@
                     <div class="col-12">
                         <div class="row justify-content-center">
                             <div class="col-md-10 text-center hero-text">
-                                <h1 data-aos="fade-up" data-aos-delay="">Tentang Uangku</h1>
-                                <p class="mb-5" data-aos="fade-up" data-aos-delay="100"><a href="#"
-                                        class="text-white">GAMELAB INDONESIA</a></p>
+                                <h1 data-aos="fade-up" data-aos-delay="">Tentang Aplikasi Kami</h1>
                             </div>
                         </div>
                     </div>
@@ -100,7 +95,7 @@
             <div class="container">
                 <div class="row justify-content-center text-center mb-6">
                     <div class="col-md-6">
-                        <h2 class="section-heading mb-6">Mengapa Memilih Uangku?</h2>
+                        <h2 class="section-heading mb-6">Mengapa Memilih Aplikasi Kami?</h2>
                         <br /><br />
                     </div>
                 </div>
@@ -112,14 +107,14 @@
                                 <p>
                                     Desain yang user-friendly memastikan Anda dapat mulai mencatat keuangan Anda tanpa
                                     hambatan. Baik Anda seorang pemula dalam hal manajemen keuangan atau sudah
-                                    berpengalaman, Uangku akan menjadi teman setia dalam mengelola
+                                    berpengalaman, Aplikasi ini akan menjadi teman setia dalam mengelola
                                     setiap transaksi.
                                 </p>
                             </blockquote>
                             <br /><br />
                             <h3>Fitur Lengkap</h3>
                             <blockquote>
-                                <p>Uangku dilengkapi dengan berbagai fitur yang mendukung kebutuhan keuangan Anda,
+                                <p>Aplikasi ini dilengkapi dengan berbagai fitur yang mendukung kebutuhan keuangan Anda,
                                     seperti pencatatan transaksi harian, pelacakan anggaran, laporan keuangan yang mudah
                                     dipahami, dan pengingat pembayaran tagihan.</p>
                             </blockquote>
@@ -173,18 +168,17 @@
         </section>
         <!-- End Visi & Misi Section -->
 
-        <!-- ======= Bergabunglah dengan Uangku Section ======= -->
         <!-- ======= CTA Section ======= -->
         <section class="section cta-section" style="background-color: #ffffff">
             <div class="container">
                 <div class="row justify-content-center text-center mb-6">
                     <div class="col-md-6">
                         <div class="col-md-12 me-auto text-center text-md-center mb-5 mb-md-0">
-                            <h2>Bergabunglah Bersama Uangku</h2>
+                            <h2>Bergabunglah Bersama Kami</h2>
                         </div>
                         <br /><br />
                         <p style="color: white">Mulai perjalanan keuangan Anda bersama kami dan rasakan kemudahan dalam
-                            mengatur keuangan Anda. Unduh aplikasi Uangku hari ini dan capai tujuan finansial Anda
+                            mengatur keuangan Anda. Unduh aplikasi Kami hari ini dan capai tujuan finansial Anda
                             dengan lebih mudah dan menyenangkan!</p>
                         <a href="#" class="btn btn-primary mt-3"
                             style="background-color: white; color: black; border: none"><b>Unduh Sekarang</b></a>
@@ -200,9 +194,9 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-4 mb-4 mb-md-0">
-                        <h3>Tentang Uangku</h3>
+                        <h3>Tentang Aplikasi Kami</h3>
                         <p>
-                            Uangku adalah aplikasi pencatatan keuangan pribadi yang dirancang untuk membantu pengguna
+                            Aplikasi kami adalah aplikasi pencatatan keuangan pribadi yang dirancang untuk membantu pengguna
                             mengelola pengeluaran dan pendapatan mereka dengan lebih efektif dan efisien. Aplikasi ini
                             menawarkan berbagai fitur yang memungkinkan
                             pengguna untuk memantau arus kas, membuat anggaran, serta mendapatkan laporan keuangan yang
@@ -235,20 +229,6 @@
                                     <a href="#"><span class="bi bi-instagram"></span></a>
                                 </ul>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row justify-content-center text-center">
-                    <div class="col-md-7">
-                        <p class="copyright">&copy; Copyright Uangku. All Rights Reserved</p>
-                        <div class="credits">
-                            <!--
-            All the links in the footer should remain intact.
-            You can delete the links only if you purchased the pro version.
-            Licensing information: https://bootstrapmade.com/license/
-            Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=SoftLand
-          -->
-                            Designed by <a href="https://bootstrapmade.com/">GAMELAB INDONESIA</a>
                         </div>
                     </div>
                 </div>
