@@ -9,28 +9,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class IncomeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $menus = Menu::all();
+            $user = Auth::user();
+            $menus = Menu::all();
 
         $sortField = $request->query('field', 'date');
         $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
         $validSortFields = ['date', 'amount'];
-
         if (!in_array($sortField, $validSortFields)) {
             $sortField = 'date';
         }
 
-        $kasirIds = collect(); // inisialisasi untuk owner
-
-        // Setup query builder
+        $kasirIds = collect();
         $query = Income::query();
 
         if ($user->role === 'kasir') {
@@ -40,85 +35,80 @@ class IncomeController extends Controller
             $query->whereIn('user_id', $kasirIds);
         }
 
-        // Filter bulan dan tahun
         if ($request->filled('month')) {
             $query->whereMonth('date', $request->month);
         }
-
         if ($request->filled('year')) {
             $query->whereYear('date', $request->year);
         }
 
-        // Mengambil data pemasukan dengan pagination
-        $incomes = $query->orderBy($sortField, $sortDirection)
-            ->with('user')  // Mengambil data user untuk nama kasir
-            ->paginate(10)  // Menggunakan paginate untuk mendapatkan data yang dipaginasi
-            ->withQueryString();  // Menyertakan query string saat pagination
+        $rawData = $query->orderBy($sortField, $sortDirection)->get();
+        $grouped = $rawData->groupBy('id_incomes');
+        $groupedKeys = $grouped->keys();
 
-        // Mengelompokkan data berdasarkan id_incomes setelah dipaginasi
-        $incomesGrouped = $incomes->getCollection()->groupBy('id_incomes');
+        $page = $request->get('page', 1);
+        $perPage = 10;
 
-        // Menghitung total harga per grup
-        $totalIncomePerGroup = $incomesGrouped->map(function ($group) {
-            // Menghitung total harga grup dengan menjumlahkan harga keseluruhan
-            $totalPerGroup = $group->sum('total_price');
-            return $totalPerGroup;
+        $offset = ($page - 1) * $perPage;
+        $pagedGroupKeys = $groupedKeys->slice($offset, $perPage);
+
+        // Ambil hanya grup yang masuk halaman ini
+        $incomesGrouped = $pagedGroupKeys->mapWithKeys(function ($key) use ($grouped) {
+            return [$key => $grouped[$key]];
         });
 
-        // Total pemasukan keseluruhan: Menjumlahkan total harga dari setiap grup
-        $totalIncome = $totalIncomePerGroup->sum(); // Menjumlahkan total harga dari seluruh grup
 
-        // Data untuk grafik bulanan
-        $monthlyData = $incomesGrouped->map(function ($group) {
-            return $group->sum('total_price'); // Jumlahkan total_price per grup untuk bulanan
-        });
+        $incomes = new LengthAwarePaginator(
+            $incomesGrouped->flatten(1),
+            $grouped->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
-        // Data untuk grafik harian
-        $dailyIncomes = (clone $query)->orderBy('date')->get()->groupBy(function ($income) {
-            return Carbon::parse($income->date)->format('Y-m-d');
-        });
+        $totalIncomePerGroup = $incomesGrouped->map(fn($group) => $group->sum('total_price'));
+        $totalIncome = $totalIncomePerGroup->sum();
 
-        $dailyData = $dailyIncomes->map(function ($group) {
-            return $group->sum('total_price'); // Jumlahkan total_price per hari
-        });
+        $monthlyIncomes = $rawData->groupBy(fn($i) => Carbon::parse($i->date)->format('F'));
+        $monthlyData = $monthlyIncomes->map(fn($group) => $group->groupBy('id_incomes')->map(fn($g) => $g->sum('total_price'))->sum())->values()->toArray();
+        $months = $monthlyIncomes->keys()->toArray();
 
-        // Data kategori
-        $categoryData = (clone $query)
-            ->select('category', DB::raw('SUM(amount) as total'))
-            ->groupBy('category')
-            ->pluck('total', 'category');
-
+        $dailyIncomes = $rawData->groupBy(fn($i) => Carbon::parse($i->date)->format('Y-m-d'));
+        $dailyData = $dailyIncomes->map(fn($group) => $group->groupBy('id_incomes')->map(fn($g) => $g->sum('total_price'))->sum());
         $daily = [
-            'labels' => $dailyIncomes->keys()->toArray(),
-            'values' => $dailyData->values()->toArray()
+            'labels' => $dailyData->keys()->toArray(),
+            'values' => $dailyData->values()->toArray(),
         ];
 
-        // Bulan untuk chart
-        $months = $incomesGrouped->keys()->toArray();
+        $groupedById = $rawData->groupBy('id_incomes');
+        $categorySums = $groupedById->flatMap(fn($group) => $group->groupBy('category')->map(fn($items, $category) => [
+            'category' => $category,
+            'total' => $items->sum('total_price')
+        ]));
+        $groupedByCategory = $categorySums->groupBy('category')->map(fn($items) => collect($items)->sum('total'));
+        $categoryData = [
+            'labels' => $groupedByCategory->keys()->values(),
+            'data' => $groupedByCategory->values()
+        ];
 
-        // Dropdown tahun - Mengambil distinct tahun dari Income
         $availableYears = Income::selectRaw('YEAR(date) as year')
-            ->when($user->role === 'kasir', function ($q) use ($user) {
-                return $q->where('user_id', $user->id);
-            })
-            ->when($user->role === 'owner', function ($q) use ($kasirIds) {
-                return $q->whereIn('user_id', $kasirIds);
-            })
+            ->when($user->role === 'kasir', fn($q) => $q->where('user_id', $user->id))
+            ->when($user->role === 'owner', fn($q) => $q->whereIn('user_id', $kasirIds))
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year');
 
         return view('income.index', compact(
-            'incomes', // Mengirimkan data yang dipaginasi
-            'incomesGrouped', // Mengirimkan data yang dikelompokkan
-            'totalIncome', // Total pemasukan keseluruhan berdasarkan grup
-            'totalIncomePerGroup', // Total per grup (untuk setiap grup)
-            'monthlyData', // Data untuk chart bulanan
-            'dailyData', // Data untuk chart harian
-            'daily', // Data untuk grafik harian
+            'incomes',
+            'incomesGrouped',
+            'totalIncome',
+            'totalIncomePerGroup',
+            'monthlyData',
+            'dailyData',
+            'daily',
             'categoryData',
-            'months', // Bulan untuk chart
-            'availableYears', // Mengirimkan tahun yang tersedia ke view
+            'months',
+            'availableYears',
             'menus'
         ));
     }
@@ -275,7 +265,6 @@ class IncomeController extends Controller
             return redirect()->back()->withErrors(['error' => 'Error: ' . $e->getMessage()]);
         }
     }
-
 
     /**
      * Remove the specified resource from storage.

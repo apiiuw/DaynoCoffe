@@ -3,6 +3,7 @@
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\ManageMenuController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ManageExpansesController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\UserProfileController;
@@ -99,6 +100,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/edit-expense/{id}', [ExpenseController::class, 'edit'])->name('edit.expense');
     Route::delete('/delete-expense/{id}', [ExpenseController::class, 'destroy'])->name('delete.expense');
     Route::put('/update-expense/{id}', [ExpenseController::class, 'update'])->name('update.expense');
+
+    // Route Manage Expanses
+    Route::get('/manage-expense', [ManageExpansesController::class, 'index'])->name('manage-expanses.index');
 
     //Route Debts
     Route::get('/debt', [DebtController::class, 'index'])->name('index.debt');

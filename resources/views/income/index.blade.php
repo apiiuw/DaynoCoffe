@@ -53,13 +53,39 @@
                                         <tr>
                                             <th>No</th>
                                             <th>ID Pemasukan</th>
-                                            <th>Tanggal</th>
+                                            <th>
+                                                <a href="{{ request()->fullUrlWithQuery(['field' => 'date', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}">
+                                                    Tanggal
+                                                    @if (request()->query('field') == 'date')
+                                                        @if (request()->query('sort') == 'asc')
+                                                            <i class="fas fa-sort-up"></i>
+                                                        @else
+                                                            <i class="fas fa-sort-down"></i>
+                                                        @endif
+                                                    @else
+                                                        <i class="fas fa-sort"></i>
+                                                    @endif
+                                                </a>
+                                            </th>
                                             <th>Kategori</th>
                                             <th>Deskripsi</th>
                                             <th>Harga Satuan</th>
                                             <th>Jumlah</th>
                                             <th>Harga Keseluruhan</th>
-                                            <th>Total Harga</th>
+                                            <th>
+                                                <a href="{{ request()->fullUrlWithQuery(['field' => 'amount', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}">
+                                                    Total Harga
+                                                    @if (request()->query('field') == 'amount')
+                                                        @if (request()->query('sort') == 'asc')
+                                                            <i class="fas fa-sort-up"></i>
+                                                        @else
+                                                            <i class="fas fa-sort-down"></i>
+                                                        @endif
+                                                    @else
+                                                        <i class="fas fa-sort"></i>
+                                                    @endif
+                                                </a>
+                                            </th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>

@@ -11,62 +11,71 @@ class KasirDashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-
-        // Waktu sekarang
         $now = Carbon::now();
 
-        // Mulai dari 5 bulan lalu sampai bulan ini
+        // Ambil 6 bulan terakhir berdasarkan kolom `date`
         $startMonth = $now->copy()->subMonths(5)->startOfMonth();
         $endMonth = $now->copy()->endOfMonth();
 
-        // Ambil data pemasukan selama 6 bulan terakhir untuk user ini
+        // Ambil data income berdasarkan kolom `date`
         $incomes = Income::where('user_id', $user->id)
-            ->whereBetween('created_at', [$startMonth, $endMonth])
+            ->whereBetween('date', [$startMonth, $endMonth])
             ->get();
 
-        // Group data pemasukan berdasarkan nama bulan (e.g. "Juni", "Juli", ...)
         // ================= Chart 1: Pemasukan per Bulan =================
-    $monthlyIncome = $incomes->groupBy(fn($i) => $i->created_at->format('F'));
-    $months = collect(CarbonPeriod::create($startMonth, '1 month', $endMonth))
-        ->map(fn($d) => $d->format('F'));
+        $monthlyIncome = $incomes->groupBy(fn($i) => Carbon::parse($i->date)->format('F'));
 
-    $incomeData = $months->map(function ($m) use ($monthlyIncome) {
-        return $monthlyIncome->get($m, collect())->sum('amount');
-    });
-
-        // Buat array 6 bulan terakhir dalam urutan waktu
         $months = collect(CarbonPeriod::create($startMonth, '1 month', $endMonth))
-            ->map(function ($date) {
-                return $date->format('F');
-            });
+            ->map(fn($d) => $d->format('F'));
 
+        $incomeData = $months->map(function ($monthName) use ($monthlyIncome) {
+            $incomesInMonth = $monthlyIncome->get($monthName, collect());
 
-        // Total semua pemasukan
-        $totalIncome = $incomes->sum('amount');
+            // Kelompokkan per id_incomes
+            $groupedById = $incomesInMonth->groupBy('id_incomes');
+
+            // Jumlahkan total_price per grup, lalu jumlahkan semua
+            return $groupedById->map(fn($group) => $group->sum('total_price'))->sum();
+        });
+
+        // ================= Total Pemasukan Keseluruhan =================
+        $totalIncome = $incomes
+            ->groupBy('id_incomes')
+            ->map(fn($group) => $group->sum('total_price'))
+            ->sum();
 
         // ================= Chart 2: Pemasukan per Kategori =================
-        $groupedByCategory = $incomes->groupBy('category');
+        // Kelompokkan berdasarkan id_incomes dulu
+        $groupedById = $incomes->groupBy('id_incomes');
+
+        // Ambil semua kategori dan total per kategori dalam 1 grup id_incomes
+        $groupedSums = $groupedById->flatMap(function ($group) {
+            return $group->groupBy('category')->map(function ($items, $category) {
+                return [
+                    'category' => $category,
+                    'total' => $items->sum('total_price')
+                ];
+            });
+        });
+
+        // Kelompokkan ulang berdasarkan kategori secara global
+        $groupedByCategory = $groupedSums->groupBy('category')->map(fn($items) => collect($items)->sum('total'));
 
         $categoryData = [
-            'labels' => $groupedByCategory->keys(),
-            'data' => $groupedByCategory->map(fn($row) => $row->sum('amount'))->values(),
+            'labels' => $groupedByCategory->keys()->values(),
+            'data' => $groupedByCategory->values(),
         ];
 
+        // ================= Kirim ke View =================
         return view('dashboard.kasir', [
             'months' => $months,
             'incomeData' => $incomeData->values()->all(),
             'totalIncome' => $totalIncome,
             'categoryData' => [
-                'labels' => $categoryData['labels']->values()->all(),
+                'labels' => $categoryData['labels']->all(),
                 'data' => $categoryData['data']->all()
             ],
         ]);
-
-        // Kirim ke view
-        return view('dashboard.kasir', [
-            'months' => $months,
-            'incomeData' => $incomeData->values()->all(),
-            'totalIncome' => $totalIncome
-        ]);
     }
+
 }

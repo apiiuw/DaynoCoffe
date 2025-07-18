@@ -179,8 +179,10 @@
                             <i class="nav-icon fas fa-wallet"></i>
                             <p style="color: white;">Pengeluaran</p>
                         </a>
-                        <a href="{{ route('index.expense') }}" class="nav-link">
-                            <i class="nav-icon fas fa-wallet"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('manage-expanses.index') }}" class="nav-link">
+                            <i class="nav-icon fa-solid fa-layer-group"></i>
                             <p style="color: white;">Kelola Kategori</p>
                         </a>
                     </li>
