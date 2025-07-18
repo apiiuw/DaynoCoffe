@@ -102,7 +102,12 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/update-expense/{id}', [ExpenseController::class, 'update'])->name('update.expense');
 
     // Route Manage Expanses
-    Route::get('/manage-expense', [ManageExpansesController::class, 'index'])->name('manage-expanses.index');
+    Route::get('/manage-expenses', [ManageExpansesController::class, 'index'])->name('manage-expanses.index');
+    Route::get('/manage-expanses/{id}/edit', [ManageExpansesController::class, 'edit'])->name('manage-expanses.edit');
+    Route::put('/manage-expanses/{id}', [ManageExpansesController::class, 'update'])->name('manage-expanses.update');
+    Route::delete('/manage-expanses/{id}', [ManageExpansesController::class, 'destroy'])->name('manage-expanses.destroy');
+    Route::get('/manage-expanses/create', [ManageExpansesController::class, 'create'])->name('manage-expanses.create');
+    Route::post('/manage-expanses', [ManageExpansesController::class, 'store'])->name('manage-expanses.store');
 
     //Route Debts
     Route::get('/debt', [DebtController::class, 'index'])->name('index.debt');

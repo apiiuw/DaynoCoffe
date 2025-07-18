@@ -14,7 +14,7 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header text-right">
-                    <a href="" class="btn btn-success">Tambah Kategori</a>
+                    <a href="{{ route('manage-expanses.create') }}" class="btn btn-success">Tambah Kategori</a>
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered table-hover">
@@ -37,11 +37,13 @@
                                     <td>Rp {{ number_format($item->nominal, 0, ',', '.') }}</td>
                                     <td>{{ $item->keterangan }}</td>
                                     <td>
-                                        <a href="" class="btn btn-warning btn-sm">Edit</a>
-                                        <form action="{{ route('', $item->id) }}" method="POST" style="display:inline-block;">
+                                        <a href="{{ route('manage-expanses.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                        
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $item->id }})">Hapus</button>
+
+                                        <form id="delete-form-{{ $item->id }}" action="{{ route('manage-expanses.destroy', $item->id) }}" method="POST" style="display: none;">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus?')">Hapus</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -58,3 +60,50 @@
     </section>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Hapus Data!',
+            text: 'Anda yakin ingin menghapus kategori pengeluaran ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+
+    @if (session('success'))
+        Swal.fire({
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    @endif
+
+    @if (session('success-destroy'))
+        Swal.fire({
+            title: 'Data Terhapus!',
+            text: '{{ session('success-destroy') }}',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    @endif
+</script>
+@endpush
