@@ -106,7 +106,7 @@
                                                     @if ($loop->first)
                                                         <td rowspan="{{ $groupedIncomes->count() }}">Rp {{ number_format($firstIncome->amount, 0, ',', '.') }}</td>
                                                         <td rowspan="{{ $groupedIncomes->count() }}">
-                                                            <a href="{{ route('edit.income', $firstIncome->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                                            <a href="{{ route('edit.income', $firstIncome->id_incomes) }}" class="btn btn-warning btn-sm">Edit</a>
                                                         </td>
                                                     @endif
                                                 </tr>

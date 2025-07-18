@@ -233,41 +233,49 @@ class IncomeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id_incomes)
     {
-        $income = Income::findOrFail($id);
+        // Cari grup berdasarkan id_incomes
+        $income = Income::where('id_incomes', $id_incomes)->get();
 
-        // Ambil hanya kategori dari menu yang tersedia
-        $categories = Menu::where('availability', 'Tersedia')
-            ->select('category')
-            ->distinct()
-            ->pluck('category');
-
-        $menus = Menu::where('availability', 'Tersedia')->get();
-
-        return view('income.edit', compact('income', 'categories', 'menus'));
+        $menus = Menu::all(); // Ambil semua menu untuk pilihan
+        return view('income.edit', compact('income', 'menus'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id_incomes)
     {
-        $request->validate([
-            'date' => 'required|date',
-            'category' => 'required|string',
-            'amount' => 'required|numeric',
-            'description' => 'nullable|string',
-            // quantity tidak perlu divalidasi karena tidak disimpan
-        ]);
+        try {
+            $request->validate([
+                'date' => 'required|array',
+                'menu_id' => 'required|array',
+                'amount' => 'required', // tidak array
+                'description' => 'nullable|array',
+                'quantity' => 'nullable|array',
+                'price' => 'nullable|array',
+            ]);
 
-        $income = Income::findOrFail($id);
-        $income->date = $request->date;
-        $income->category = $request->category;
-        $income->amount = $request->amount; // total harga
-        $income->description = $request->description;
-        $income->save();
+            $amount = $request->amount; // total harga akhir
 
-        alert()->success('Berhasil!', 'Data Berhasil Diperbarui');
-        return redirect()->route('index.income');
+            $incomes = Income::where('id_incomes', $id_incomes)->get();
+
+            foreach ($incomes as $index => $income) {
+                $income->quantity = $request->quantity[$index];
+                $income->price = $request->price[$index];
+                $income->description = $request->description[$index];
+                $income->total_price = $income->price * $income->quantity;
+                $income->date = $request->date[0];
+                $income->amount = $amount; // <- ini bagian penting
+                $income->save();
+            }
+
+            alert()->success('Success!', 'Data successfully updated.');
+            return redirect()->route('index.income');
+        } catch (\Exception $e) {
+            Log::error('Error while updating data: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Error: ' . $e->getMessage()]);
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.

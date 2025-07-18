@@ -81,9 +81,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/income', [IncomeController::class, 'index'])->name('index.income');
     Route::get('/form-income', [IncomeController::class, 'create'])->name('create.income');
     Route::post('/store-income', [IncomeController::class, 'store'])->name('store.income');
-    Route::get('/edit-income/{id}', [IncomeController::class, 'edit'])->name('edit.income');
-    Route::delete('/delete-income/{id}', [IncomeController::class, 'destroy'])->name('delete.income');
-    Route::put('/update-income/{id}', [IncomeController::class, 'update'])->name('update.income');
+    Route::get('edit-incomes/{id_incomes}', [IncomeController::class, 'edit'])->name('edit.income');
+    Route::put('update-incomes/{id_incomes}', [IncomeController::class, 'update'])->name('update.income');
 
     // Route Manage Menu
     Route::get('/manage-menu', [ManageMenuController::class, 'index'])->name('manage-menu.index');
