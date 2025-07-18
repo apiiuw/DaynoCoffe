@@ -59,51 +59,51 @@
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                         @csrf
                     </form>
-    </li>
-<li class="nav-item dropdown" style="margin-left: 40px;">
-    <a class="nav-link" data-toggle="dropdown" href="#" role="button">
-        <i class="far fa-bell"></i>
-        @if(($dueDebts ?? collect())->count() + ($dueBills ?? collect())->count() > 0)
-            <span class="badge badge-danger navbar-badge">
-                {{ ($dueDebts ?? collect())->count() + ($dueBills ?? collect())->count() }}
-            </span>
-        @endif
-    </a>
+                </li>
+                <li class="nav-item dropdown" style="margin-left: 40px;">
+                    <a class="nav-link" data-toggle="dropdown" href="#" role="button">
+                        <i class="far fa-bell"></i>
+                        @if(($dueDebts ?? collect())->count() + ($dueBills ?? collect())->count() > 0)
+                            <span class="badge badge-danger navbar-badge">
+                                {{ ($dueDebts ?? collect())->count() + ($dueBills ?? collect())->count() }}
+                            </span>
+                        @endif
+                    </a>
 
-    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="width: 300px;">
-        <span class="dropdown-header">Notifikasi Tenggat Waktu</span>
-        <div class="dropdown-divider"></div>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="width: 300px;">
+                        <span class="dropdown-header">Notifikasi Tenggat Waktu</span>
+                        <div class="dropdown-divider"></div>
 
-        @foreach($dueDebts ?? [] as $debt)
-            <a href="{{ route('index.debt') }}" class="dropdown-item text-sm">
-                <i class="fas fa-exclamation-circle mr-2 text-warning"></i>
-                Hutang: <strong>{{ $debt->category ?? 'Tidak diketahui' }}</strong><br>
-                <small class="text-muted ml-4">
-                    Jatuh tempo {{ \Carbon\Carbon::parse($debt->due_date)->diffForHumans() }}
-                </small>
-            </a>
-        @endforeach
+                        @foreach($dueDebts ?? [] as $debt)
+                            <a href="{{ route('index.debt') }}" class="dropdown-item text-sm">
+                                <i class="fas fa-exclamation-circle mr-2 text-warning"></i>
+                                Hutang: <strong>{{ $debt->category ?? 'Tidak diketahui' }}</strong><br>
+                                <small class="text-muted ml-4">
+                                    Jatuh tempo {{ \Carbon\Carbon::parse($debt->due_date)->diffForHumans() }}
+                                </small>
+                            </a>
+                        @endforeach
 
-        @foreach($dueBills ?? [] as $bill)
-            <a href="{{ route('index.bill') }}" class="dropdown-item text-sm">
-                <i class="fas fa-exclamation-circle mr-2 text-info"></i>
-                Tagihan: <strong>{{ $bill->category ?? 'Tidak diketahui' }}</strong><br>
-                <small class="text-muted ml-4">
-                    Jatuh tempo {{ \Carbon\Carbon::parse($bill->due_date)->diffForHumans() }}
-                </small>
-            </a>
-        @endforeach
+                        @foreach($dueBills ?? [] as $bill)
+                            <a href="{{ route('index.bill') }}" class="dropdown-item text-sm">
+                                <i class="fas fa-exclamation-circle mr-2 text-info"></i>
+                                Tagihan: <strong>{{ $bill->category ?? 'Tidak diketahui' }}</strong><br>
+                                <small class="text-muted ml-4">
+                                    Jatuh tempo {{ \Carbon\Carbon::parse($bill->due_date)->diffForHumans() }}
+                                </small>
+                            </a>
+                        @endforeach
 
-        @if(($dueDebts ?? collect())->isEmpty() && ($dueBills ?? collect())->isEmpty())
-            <span class="dropdown-item text-sm text-muted">Tidak ada tenggat waktu dalam 7 hari</span>
-        @endif
+                        @if(($dueDebts ?? collect())->isEmpty() && ($dueBills ?? collect())->isEmpty())
+                            <span class="dropdown-item text-sm text-muted">Tidak ada tenggat waktu dalam 7 hari</span>
+                        @endif
 
-        <div class="dropdown-divider"></div>
-        <a href="{{ route('index.debt') }}" class="dropdown-item dropdown-footer">Lihat Semua Hutang</a>
-        <a href="{{ route('index.bill') }}" class="dropdown-item dropdown-footer">Lihat Semua Tagihan</a>
-    </div>
-</li>
-
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ route('index.debt') }}" class="dropdown-item dropdown-footer">Lihat Semua Hutang</a>
+                        <a href="{{ route('index.bill') }}" class="dropdown-item dropdown-footer">Lihat Semua Tagihan</a>
+                    </div>
+                </li>
+            </ul>
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
@@ -145,67 +145,71 @@
             <div class="sidebar">
                 <!-- Sidebar Menu -->
                   
-    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-        data-accordion="false">
-        
-        {{-- DASHBOARD (semua role) --}}
-        <li class="nav-item">
-            <a href="{{ route('home') }}" class="nav-link">
-                <i class="nav-icon fas fa-tachometer-alt"></i>
-                <p style="color: white;">Dashboard</p>
-            </a>
-        </li>
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                data-accordion="false">
+                
+                {{-- DASHBOARD (semua role) --}}
+                <li class="nav-item">
+                    <a href="{{ route('home') }}" class="nav-link">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p style="color: white;">Dashboard</p>
+                    </a>
+                </li>
 
-        {{-- ROLE: KASIR --}}
-        @if(auth()->user()->role === 'kasir')
-            <li class="nav-item">
-                <a href="{{ route('index.income') }}" class="nav-link">
-                    <i class="nav-icon fas fa-dollar-sign"></i>
-                    <p style="color: white;">Pemasukan</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('manage-menu.index') }}" class="nav-link">
-                    <i class="nav-icon fa-solid fa-clipboard-list"></i>
-                    <p style="color: white;">Kelola Menu</p>
-                </a>
-            </li>
-        @endif
+                {{-- ROLE: KASIR --}}
+                @if(auth()->user()->role === 'kasir')
+                    <li class="nav-item">
+                        <a href="{{ route('index.income') }}" class="nav-link">
+                            <i class="nav-icon fas fa-dollar-sign"></i>
+                            <p style="color: white;">Pemasukan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('manage-menu.index') }}" class="nav-link">
+                            <i class="nav-icon fa-solid fa-clipboard-list"></i>
+                            <p style="color: white;">Kelola Menu</p>
+                        </a>
+                    </li>
+                @endif
 
-        {{-- ROLE: MANAGER --}}
-        @if(auth()->user()->role === 'manager')
-            <li class="nav-item">
-                <a href="{{ route('index.expense') }}" class="nav-link">
-                    <i class="nav-icon fas fa-wallet"></i>
-                    <p style="color: white;">Pengeluaran</p>
-                </a>
-            </li>
-        @endif
+                {{-- ROLE: MANAGER --}}
+                @if(auth()->user()->role === 'manager')
+                    <li class="nav-item">
+                        <a href="{{ route('index.expense') }}" class="nav-link">
+                            <i class="nav-icon fas fa-wallet"></i>
+                            <p style="color: white;">Pengeluaran</p>
+                        </a>
+                        <a href="{{ route('index.expense') }}" class="nav-link">
+                            <i class="nav-icon fas fa-wallet"></i>
+                            <p style="color: white;">Kelola Kategori</p>
+                        </a>
+                    </li>
+                @endif
 
-        {{-- ROLE: OWNER --}}
-        @if(auth()->user()->role === 'owner')
-            <li class="nav-item">
-                <a href="{{ route('index.debt') }}" class="nav-link">
-                    <i class="nav-icon fas fa-credit-card"></i>
-                    <p style="color: white;">Hutang</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('index.bill') }}" class="nav-link">
-                    <i class="nav-icon fas fa-file-invoice"></i>
-                    <p style="color: white;">Tagihan</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('index.report') }}" class="nav-link">
-                    <i class="nav-icon fas fa-info"></i>
-                    <p style="color: white;">Laporan</p>
-                </a>
-            </li>
-        @endif
+                {{-- ROLE: OWNER --}}
+                @if(auth()->user()->role === 'owner')
+                    <li class="nav-item">
+                        <a href="{{ route('index.debt') }}" class="nav-link">
+                            <i class="nav-icon fas fa-credit-card"></i>
+                            <p style="color: white;">Hutang</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('index.bill') }}" class="nav-link">
+                            <i class="nav-icon fas fa-file-invoice"></i>
+                            <p style="color: white;">Tagihan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('index.report') }}" class="nav-link">
+                            <i class="nav-icon fas fa-info"></i>
+                            <p style="color: white;">Laporan</p>
+                        </a>
+                    </li>
+                @endif
 
-    </ul>
-</nav>
+            </ul>
+        </nav>
 
                 <!-- /.sidebar-menu -->
             </div>

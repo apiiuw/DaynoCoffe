@@ -52,7 +52,7 @@ class ManageMenuController extends Controller
         $menu = Menu::findOrFail($id);
         $menu->delete();
 
-        return redirect()->route('manage-menu.index')->with('success', 'Menu deleted successfully!');
+        return redirect()->route('manage-menu.index')->with('success-destroy', 'Menu deleted successfully!'); 
     }
 
     public function create()

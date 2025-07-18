@@ -99,6 +99,15 @@
             });
         @endif
 
+        @if (session('success-destroy'))
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Success Menghapus Menu.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+        @endif
+
         @if (session('error'))
             Swal.fire({
                 title: 'Error!',
