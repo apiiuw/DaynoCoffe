@@ -12,9 +12,10 @@ class ExpensesCategory extends Model
     protected $table = 'expenses_category';
 
     protected $fillable = [
+        'id',
         'category',
         'item',
-        'nominal',
+        'price',
         'keterangan',
     ];
 }

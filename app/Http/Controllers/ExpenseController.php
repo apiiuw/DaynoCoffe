@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;  
 use App\Models\expense;
+use App\Models\ExpensesCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
+
 class ExpenseController extends Controller
 {
     /**
@@ -86,39 +89,99 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        return view('expense.create');
+        $expenses = ExpensesCategory::all();
+        return view('expense.create', compact('expenses'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // validasi input
-        $request->validate([
-    'date' => 'required|date',
-    'category' => 'required|string',
-    'amount' => 'required|numeric',
-    'description' => 'nullable|string',
-]);
+        try {
+            // Validasi input berdasarkan kondisi
+            $request->validate([
+                'date' => 'required|array',
+                'expenses_id' => 'required|array',
+                'amount' => 'required|array',
+                'description' => 'nullable|array',  // Validate description as string
+                'quantity' => 'nullable|array',    // Validate quantity as numeric
+                'price' => 'nullable|array',       // Validate price as numeric
+            ]);
 
-$user = Auth::user();
+            // Membuat id_incomes di luar loop agar nilainya sama untuk semua entri
+            $id_expenses = 'EXP' . str_pad(rand(1000, 9999), 4, '0', STR_PAD_LEFT);  // 4 random digits after 'INC'
 
-// Buat objek pengeluaran (Expense)
-$expense = new Expense();
-$expense->user_id    = $user->id;
-$expense->date       = $request->input('date');          // ← penting, karena 'date' wajib di DB
-$expense->category   = $request->input('category');      // ← pastikan nama kolom di DB adalah 'category', bukan 'category_id'
-$expense->amount     = $request->input('amount');
-$expense->description = $request->input('description');
-$expense->save();
+            $totalAmount = 0;  // Variable for total amount that will be saved
 
+            // Loop through each order to calculate total amount
+            foreach ($request->expenses_id as $index => $expenses_id) {
+                $expenses = ExpensesCategory::find($expenses_id);
 
-        // Simpan pengeluaran baru ke database
-        $expense->save();
+                // Memastikan bahwa description adalah string
+                $description = isset($request->description[$index]) ? (string) $request->description[$index] : 'No description';
 
-        alert()->success('Berhasil!', 'Data Berhasil Ditambah');
-         return redirect()->route('index.expense')->with('success', 'Pengeluaran berhasil ditambahkan!');
+                // Memastikan quantity dan price adalah angka
+                $quantity = isset($request->quantity[$index]) ? (int) $request->quantity[$index] : 1; // default quantity to 1
+                $price = isset($request->price[$index]) ? (float) $request->price[$index] : 0; // default price to 0
+
+                // Pastikan quantity dan price valid
+                if (!is_numeric($quantity) || !is_numeric($price)) {
+                    throw new \Exception("Quantity dan Price harus berupa angka yang valid.");
+                }
+
+                // Log data untuk memastikan tipe data yang diterima
+                Log::info('Expenses ID: ' . $expenses_id);
+                Log::info('Quantity: ' . $quantity);
+                Log::info('Price: ' . $price);
+                Log::info('Description: ' . $description);
+
+                // Calculate total price for each order
+                $totalPrice = $price * $quantity;
+
+                // Add to totalAmount
+                $totalAmount += $totalPrice;
+            }
+
+            // Loop through each order again to store the data with the same amount
+            foreach ($request->expenses_id as $index => $expenses_id) {
+                $expenses = ExpensesCategory::find($expenses_id);
+
+                // Memastikan bahwa description adalah string
+                $description = isset($request->description[$index]) ? (string) $request->description[$index] : 'No description';
+
+                // Memastikan quantity dan price adalah angka
+                $quantity = isset($request->quantity[$index]) ? (int) $request->quantity[$index] : 1; // default quantity to 1
+                $price = isset($request->price[$index]) ? (float) $request->price[$index] : 0; // default price to 0
+
+                // Pastikan quantity dan price valid
+                if (!is_numeric($quantity) || !is_numeric($price)) {
+                    throw new \Exception("Quantity dan Price harus berupa angka yang valid.");
+                }
+
+                // Calculate total price for each order
+                $totalPrice = $price * $quantity;
+
+                // Store the income data in the database
+                $income = new expense();
+                $income->id_expenses = $id_expenses; // Use the same id_incomes for all records
+                $income->user_id = auth()->id();
+                $income->date = $request->date[0];  // Use the first entered date for all records
+                $income->category = $expenses ? $expenses->category : 'Tip Karyawan'; // Save category from menu or 'Tip'
+                $income->amount = $totalAmount;  // The same total amount for all entries
+                $income->price = $price;
+                $income->description = $description;  // Save the description (now it's guaranteed to be a string)
+                $income->quantity = $quantity;
+                $income->total_price = $totalPrice;  // Save total price for each item
+
+                // Save the income data
+                $income->save();
+            }
+
+            alert()->success('Success!', 'Data successfully added.');
+            return redirect()->route('index.expense');
+        } catch (\Exception $e) {
+            Log::error('Error while saving data: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->back()->withErrors(['error' => 'Error: ' . $e->getMessage()]);
+        }
     }
 
     /**

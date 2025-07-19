@@ -191,5 +191,4 @@
         totalPriceInput.value = total;
     }
 </script>
-
 @endpush
