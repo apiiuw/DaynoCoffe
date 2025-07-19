@@ -85,81 +85,80 @@ class ExpenseController extends Controller
     // }
 
 // Controller: index method
-public function index(Request $request)
-{
-    $user = Auth::user();
-    $items = ExpensesCategory::all();
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $items = ExpensesCategory::all();
 
-    $sortField = $request->query('field', 'date');
-    $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
-    $validSortFields = ['date', 'amount'];
-    if (!in_array($sortField, $validSortFields)) {
-        $sortField = 'date';
+        $sortField = $request->query('field', 'date');
+        $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
+        $validSortFields = ['date', 'amount'];
+        if (!in_array($sortField, $validSortFields)) {
+            $sortField = 'date';
+        }
+
+        $managerIds = collect();
+        $query = expense::query();
+
+        if ($user->role === 'manager') {
+            $query->where('user_id', $user->id);
+        } elseif ($user->role === 'owner') {
+            $managerIds = User::where('role', 'manager')->pluck('id');
+            $query->whereIn('user_id', $managerIds);
+        }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        $perPage = 10;
+
+        // Use paginate here with $perPage
+        $rawData = $query->orderBy($sortField, $sortDirection)->paginate($perPage);
+
+        // Group data for display
+        $expensesGrouped = $rawData->getCollection()->groupBy('id_expenses');
+        $groupedKeys = $expensesGrouped->keys();
+
+        $totalExpensesPerGroup = $expensesGrouped->map(fn($group) => $group->sum('total_price'));
+        $totalExpenses = $totalExpensesPerGroup->sum();
+
+        $monthlyExpenses = $rawData->getCollection()->groupBy(fn($i) => Carbon::parse($i->date)->format('F'));
+        $monthlyData = $monthlyExpenses->map(fn($group) => $group->groupBy('id_expenses')->map(fn($g) => $g->sum('total_price'))->sum())->values()->toArray();
+        $months = $monthlyExpenses->keys()->toArray();
+
+        // Calculate daily expenses
+        $dailyExpenses = $rawData->getCollection()->groupBy(fn($i) => Carbon::parse($i->date)->format('Y-m-d'));
+        $dailyData = $dailyExpenses->map(fn($group) => $group->groupBy('id_expenses')->map(fn($g) => $g->sum('total_price'))->sum());
+
+        // Format daily data
+        $daily = [
+            'labels' => $dailyData->keys()->toArray(),
+            'values' => $dailyData->values()->toArray(),
+        ];
+
+        $availableYears = expense::selectRaw('YEAR(date) as year')
+            ->when($user->role === 'manager', fn($q) => $q->where('user_id', $user->id))
+            ->when($user->role === 'owner', fn($q) => $q->whereIn('user_id', $managerIds))
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        return view('expense.index', compact(
+            'rawData',  // Paginated data
+            'expensesGrouped', // Grouped expenses data
+            'totalExpenses',
+            'totalExpensesPerGroup',
+            'monthlyData',
+            'months',
+            'daily',  // Pass the daily data to view
+            'availableYears',
+            'items'
+        ));
     }
-
-    $managerIds = collect();
-    $query = expense::query();
-
-    if ($user->role === 'manager') {
-        $query->where('user_id', $user->id);
-    } elseif ($user->role === 'owner') {
-        $managerIds = User::where('role', 'manager')->pluck('id');
-        $query->whereIn('user_id', $managerIds);
-    }
-
-    if ($request->filled('month')) {
-        $query->whereMonth('date', $request->month);
-    }
-    if ($request->filled('year')) {
-        $query->whereYear('date', $request->year);
-    }
-
-    $perPage = 10;
-
-    // Use paginate here with $perPage
-    $rawData = $query->orderBy($sortField, $sortDirection)->paginate($perPage);
-
-    // Group data for display
-    $expensesGrouped = $rawData->getCollection()->groupBy('id_expenses');
-    $groupedKeys = $expensesGrouped->keys();
-
-    $totalExpensesPerGroup = $expensesGrouped->map(fn($group) => $group->sum('total_price'));
-    $totalExpenses = $totalExpensesPerGroup->sum();
-
-    $monthlyExpenses = $rawData->getCollection()->groupBy(fn($i) => Carbon::parse($i->date)->format('F'));
-    $monthlyData = $monthlyExpenses->map(fn($group) => $group->groupBy('id_expenses')->map(fn($g) => $g->sum('total_price'))->sum())->values()->toArray();
-    $months = $monthlyExpenses->keys()->toArray();
-
-    // Calculate daily expenses
-    $dailyExpenses = $rawData->getCollection()->groupBy(fn($i) => Carbon::parse($i->date)->format('Y-m-d'));
-    $dailyData = $dailyExpenses->map(fn($group) => $group->groupBy('id_expenses')->map(fn($g) => $g->sum('total_price'))->sum());
-
-    // Format daily data
-    $daily = [
-        'labels' => $dailyData->keys()->toArray(),
-        'values' => $dailyData->values()->toArray(),
-    ];
-
-    $availableYears = expense::selectRaw('YEAR(date) as year')
-        ->when($user->role === 'manager', fn($q) => $q->where('user_id', $user->id))
-        ->when($user->role === 'owner', fn($q) => $q->whereIn('user_id', $managerIds))
-        ->distinct()
-        ->orderByDesc('year')
-        ->pluck('year');
-
-    return view('expense.index', compact(
-        'rawData',  // Paginated data
-        'expensesGrouped', // Grouped expenses data
-        'totalExpenses',
-        'totalExpensesPerGroup',
-        'monthlyData',
-        'months',
-        'daily',  // Pass the daily data to view
-        'availableYears',
-        'items'
-    ));
-}
-
 
     /**
      * Show the form for creating a new resource.
@@ -269,36 +268,47 @@ public function index(Request $request)
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit($id_expenses)
     {
-        $expense = Expense::findOrFail($id);
-        return view('expense.edit', compact('expense'));
+        // Cari grup berdasarkan id_incomes
+        $expenses = expense::where('id_expenses', $id_expenses)->get();
+
+        $items = ExpensesCategory::all(); // Ambil semua menu untuk pilihan
+        return view('expense.edit', compact('expenses', 'items'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id_expenses)
     {
-        $request->validate([
-            'date' => 'required|date',
-            'category' => 'required|string',
-            'amount' => 'required|numeric',
-            'description' => 'nullable|string',
-        ]);
+        try {
+            $request->validate([
+                'date' => 'required|array',
+                'expenses_id' => 'required|array',
+                'amount' => 'required', // tidak array
+                'description' => 'nullable|array',
+                'quantity' => 'nullable|array',
+                'price' => 'nullable|array',
+            ]);
 
-        $expense = Expense::findOrFail($id);
-        $expense->date = $request->date;
-        $expense->category = $request->category;
-        $expense->amount = $request->amount;
-        $expense->description = $request->description;
-        $expense->save();
+            $amount = $request->amount; // total harga akhir
 
-        alert()->success('Berhasil!', 'Data Berhasil Diperbarui');
-        return redirect()->route('index.expense');
+            $expenses = expense::where('id_expenses', $id_expenses)->get();
+
+            foreach ($expenses as $index => $expense) {
+                $expense->quantity = $request->quantity[$index];
+                $expense->price = $request->price[$index];
+                $expense->description = $request->description[$index];
+                $expense->total_price = $expense->price * $expense->quantity;
+                $expense->date = $request->date[0];
+                $expense->amount = $amount; // <- ini bagian penting
+                $expense->save();
+            }
+
+            alert()->success('Success!', 'Data successfully updated.');
+            return redirect()->route('index.expense');
+        } catch (\Exception $e) {
+            Log::error('Error while updating data: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Error: ' . $e->getMessage()]);
+        }
     }
 
     /**

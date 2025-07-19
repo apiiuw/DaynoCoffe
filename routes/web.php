@@ -97,9 +97,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/expense', [ExpenseController::class, 'index'])->name('index.expense');
     Route::get('/form-expense', [ExpenseController::class, 'create'])->name('create.expense');
     Route::post('/store-expense', [ExpenseController::class, 'store'])->name('store.expense');
-    Route::get('/edit-expense/{id}', [ExpenseController::class, 'edit'])->name('edit.expense');
-    Route::delete('/delete-expense/{id}', [ExpenseController::class, 'destroy'])->name('delete.expense');
-    Route::put('/update-expense/{id}', [ExpenseController::class, 'update'])->name('update.expense');
+    Route::get('/edit-expense/{id_expenses}', [ExpenseController::class, 'edit'])->name('edit.expense');
+    Route::put('/update-expense/{id_expenses}', [ExpenseController::class, 'update'])->name('update.expense');
 
     // Route Manage Expanses
     Route::get('/manage-expenses', [ManageExpensesController::class, 'index'])->name('manage-expanses.index');

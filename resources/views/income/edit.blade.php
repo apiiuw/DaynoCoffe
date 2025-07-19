@@ -1,7 +1,7 @@
 @extends('adminlte.layouts.app')
 
 @section('title', 'Uangku | Edit Pemasukan')
-
+ 
 @section('content')
 <div class="content-wrapper">
     <div class="content-header">
@@ -31,7 +31,7 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="date">Tanggal</label>
-                            <input type="date" class="form-control" name="date[]" value="{{ $income->first()->date }}" required>
+                            <input type="date" class="form-control" name="date[]" value="{{ $income->first()->date }}" required readonly>
                         </div>
                     </div>
                 </div>
@@ -110,79 +110,77 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const orderCards = document.querySelectorAll('.order-card');
+    document.addEventListener('DOMContentLoaded', function () {
+        const orderCards = document.querySelectorAll('.order-card');
 
-    const totalPriceField = document.getElementById('total-price');
+        const totalPriceField = document.getElementById('total-price');
 
-    function updateTotalPrice() {
-        let total = 0;
-        orderCards.forEach(card => {
-            const qtyField = card.querySelector('.quantity');
-            const priceField = card.querySelector('.price');
-            if (!qtyField || !priceField) return;
+        function updateTotalPrice() {
+            let total = 0;
+            orderCards.forEach(card => {
+                const qtyField = card.querySelector('.quantity');
+                const priceField = card.querySelector('.price');
+                if (!qtyField || !priceField) return;
 
-            const qty = parseFloat(qtyField.value) || 0;
-            const price = parseFloat(priceField.value) || 0;
-            total += qty * price;
-        });
-        totalPriceField.value = total;
-    }
-
-    function handleMenuChange(card, menuSelect) {
-        const selectedOption = menuSelect.options[menuSelect.selectedIndex];
-        const category = selectedOption.getAttribute('data-category');
-        const price = selectedOption.getAttribute('data-price');
-        const menuName = selectedOption.getAttribute('data-menu');
-
-        const qtyField = card.querySelector('.quantity');
-        const priceField = card.querySelector('.price');
-        const descField = card.querySelector('.description');
-
-        if (!qtyField || !priceField || !descField) return;
-
-        if (category === 'Tip') {
-            qtyField.value = 1;
-            qtyField.readOnly = true;
-
-            priceField.readOnly = false;
-            priceField.value = price || 0;
-
-            descField.value = 'Tip';
-        } else {
-            qtyField.readOnly = false;
-            if (!qtyField.value || qtyField.value == 0) qtyField.value = 1;
-
-            priceField.readOnly = true;
-            priceField.value = price || 0;
-
-            descField.value = menuName || '';
+                const qty = parseFloat(qtyField.value) || 0;
+                const price = parseFloat(priceField.value) || 0;
+                total += qty * price;
+            });
+            totalPriceField.value = total;
         }
 
+        function handleMenuChange(card, menuSelect) {
+            const selectedOption = menuSelect.options[menuSelect.selectedIndex];
+            const category = selectedOption.getAttribute('data-category');
+            const price = selectedOption.getAttribute('data-price');
+            const menuName = selectedOption.getAttribute('data-menu');
+
+            const qtyField = card.querySelector('.quantity');
+            const priceField = card.querySelector('.price');
+            const descField = card.querySelector('.description');
+
+            if (!qtyField || !priceField || !descField) return;
+
+            if (category === 'Tip') {
+                qtyField.value = 1;
+                qtyField.readOnly = true;
+
+                priceField.readOnly = false;
+                priceField.value = price || 0;
+
+                descField.value = 'Tip';
+            } else {
+                qtyField.readOnly = false;
+                if (!qtyField.value || qtyField.value == 0) qtyField.value = 1;
+
+                priceField.readOnly = true;
+                priceField.value = price || 0;
+
+                descField.value = menuName || '';
+            }
+
+            updateTotalPrice();
+        }
+
+        orderCards.forEach(card => {
+            const menuSelect = card.querySelector('.menu-select');
+            const qtyField = card.querySelector('.quantity');
+            const priceField = card.querySelector('.price');
+
+            if (!menuSelect || !qtyField || !priceField) return;
+
+            // Trigger saat halaman load
+            handleMenuChange(card, menuSelect);
+
+            // Update saat menu diganti
+            menuSelect.addEventListener('change', () => handleMenuChange(card, menuSelect));
+
+            // Update total jika qty atau harga diubah manual
+            qtyField.addEventListener('input', updateTotalPrice);
+            priceField.addEventListener('input', updateTotalPrice);
+        });
+
         updateTotalPrice();
-    }
-
-    orderCards.forEach(card => {
-        const menuSelect = card.querySelector('.menu-select');
-        const qtyField = card.querySelector('.quantity');
-        const priceField = card.querySelector('.price');
-
-        if (!menuSelect || !qtyField || !priceField) return;
-
-        // Trigger saat halaman load
-        handleMenuChange(card, menuSelect);
-
-        // Update saat menu diganti
-        menuSelect.addEventListener('change', () => handleMenuChange(card, menuSelect));
-
-        // Update total jika qty atau harga diubah manual
-        qtyField.addEventListener('input', updateTotalPrice);
-        priceField.addEventListener('input', updateTotalPrice);
     });
-
-    updateTotalPrice();
-});
 </script>
-
 @endpush
-
