@@ -47,11 +47,17 @@ public function index()
         $incomesInMonth = $incomeData->get($month, collect());
 
         // Kelompokkan per id_incomes yang unik dan ambil jumlah unik amount per id_incomes
-        $groupedById = $incomesInMonth->groupBy('id_incomes');
-        $incomeSum = $groupedById->map(fn($group) => $group->first()->amount)->sum();
+        $groupedByIdIncomes = $incomesInMonth->groupBy('id_incomes');
+        $incomeSum = $groupedByIdIncomes->map(fn($group) => $group->first()->amount)->sum();
 
-        // Data untuk pengeluaran, hutang, dan tagihan
-        $expenseSum = $expenseData->get($month, collect())->sum('amount');
+        // Ambil data Expense untuk bulan tersebut
+        $expensesInMonth = $expenseData->get($month, collect());
+
+        // Kelompokkan per id_incomes yang unik dan ambil jumlah unik amount per id_incomes
+        $groupedByIdExpenses = $expensesInMonth->groupBy('id_expenses');
+        $expenseSum = $groupedByIdExpenses->map(fn($group) => $group->first()->amount)->sum();
+
+        // Data untuk hutang dan tagihan
         $debtSum = $debtData->get($month, collect())->sum('amount');
         $billSum = $billData->get($month, collect())->sum('amount');
 
@@ -108,11 +114,17 @@ public function downloadPDF()
         $incomesInMonth = $incomeData->get($month, collect());
 
         // Kelompokkan per id_incomes yang unik dan ambil jumlah unik amount per id_incomes
-        $groupedById = $incomesInMonth->groupBy('id_incomes');
-        $incomeSum = $groupedById->map(fn($group) => $group->first()->amount)->sum();
+        $groupedByIdIncomes = $incomesInMonth->groupBy('id_incomes');
+        $incomeSum = $groupedByIdIncomes->map(fn($group) => $group->first()->amount)->sum();
 
-        // Data untuk pengeluaran, hutang, dan tagihan
-        $expenseSum = $expenseData->get($month, collect())->sum('amount');
+        // Ambil data Expense untuk bulan tersebut
+        $expensesInMonth = $expenseData->get($month, collect());
+
+        // Kelompokkan per id_incomes yang unik dan ambil jumlah unik amount per id_incomes
+        $groupedByIdExpenses = $expensesInMonth->groupBy('id_expenses');
+        $expenseSum = $groupedByIdExpenses->map(fn($group) => $group->first()->amount)->sum();
+
+        // Data untuk hutang dan tagihan
         $debtSum = $debtData->get($month, collect())->sum('amount');
         $billSum = $billData->get($month, collect())->sum('amount');
 

@@ -24,31 +24,31 @@
         
         <!-- Main content -->
          @if(($dueDebts->count() ?? 0) > 0 || ($dueBills->count() ?? 0) > 0)
-    <div class="alert alert-warning border-start border-4 border-warning-subtle shadow-sm mb-4">
-        <strong>📌 Notifikasi Tenggat Waktu (7 Hari ke Depan):</strong>
-        <ul class="mt-2 mb-0 ps-3">
-            @foreach($dueDebts as $debt)
-                <li>
-                    <span class="fw-semibold">Hutang:</span>
-                    {{ $debt->category ?? 'Tidak diketahui' }} —
-                    <span class="text-danger">{{ \Carbon\Carbon::parse($debt->due_date)->translatedFormat('d M Y') }}</span>
-                </li>
-            @endforeach
+            <div class="alert alert-warning border-start border-4 border-warning-subtle shadow-sm mb-4">
+                <strong>📌 Notifikasi Tenggat Waktu (7 Hari ke Depan):</strong>
+                <ul class="mt-2 mb-0 ps-3">
+                    @foreach($dueDebts as $debt)
+                        <li>
+                            <span class="fw-semibold">Hutang:</span>
+                            {{ $debt->category ?? 'Tidak diketahui' }} —
+                            <span class="text-danger">{{ \Carbon\Carbon::parse($debt->due_date)->translatedFormat('d M Y') }}</span>
+                        </li>
+                    @endforeach
 
-            @foreach($dueBills as $bill)
-                <li>
-                    <span class="fw-semibold">Tagihan:</span>
-                    {{ $bill->category ?? 'Tidak diketahui' }} —
-                    <span class="text-danger">{{ \Carbon\Carbon::parse($bill->due_date)->translatedFormat('d M Y') }}</span>
-                </li>
-            @endforeach
-        </ul>
-    </div>
-@else
-    <div class="alert alert-success border-start border-4 border-success-subtle shadow-sm mb-4">
-        ✅ Tidak ada hutang atau tagihan yang jatuh tempo dalam 7 hari ke depan.
-    </div>
-@endif
+                    @foreach($dueBills as $bill)
+                        <li>
+                            <span class="fw-semibold">Tagihan:</span>
+                            {{ $bill->category ?? 'Tidak diketahui' }} —
+                            <span class="text-danger">{{ \Carbon\Carbon::parse($bill->due_date)->translatedFormat('d M Y') }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @else
+            <div class="alert alert-success border-start border-4 border-success-subtle shadow-sm mb-4">
+                ✅ Tidak ada hutang atau tagihan yang jatuh tempo dalam 7 hari ke depan.
+            </div>
+        @endif
 
 
         <div class="content">
