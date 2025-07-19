@@ -60,7 +60,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary mb-5">Simpan</button>
-                        <a href="{{ route('index.income') }}" class="btn btn-danger mb-5">Kembali</a>
+                        <a href="{{ route('index.expense') }}" class="btn btn-danger mb-5">Kembali</a>
                     </form>
                 </div>
             </div>

@@ -23,7 +23,7 @@
                                 <th>No</th>
                                 <th>Kategori</th>
                                 <th>Item</th>
-                                <th>Nominal</th>
+                                <th>Harga</th>
                                 <th>Keterangan</th>
                                 <th>Aksi</th>
                             </tr>
@@ -34,7 +34,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item->category }}</td>
                                     <td>{{ $item->item }}</td>
-                                    <td>Rp {{ number_format($item->nominal, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
                                     <td>{{ $item->keterangan }}</td>
                                     <td>
                                         <a href="{{ route('manage-expanses.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>

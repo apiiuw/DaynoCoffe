@@ -36,8 +36,8 @@
                                         <input type="text" class="form-control" name="item" id="item" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="nominal">Nominal</label>
-                                        <input type="text" class="form-control" name="nominal" id="nominal" required>
+                                        <label for="price">Harga</label>
+                                        <input type="text" class="form-control" name="price" id="price" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="keterangan">Keterangan</label>
@@ -56,7 +56,7 @@
 
 @push('scripts')
 <script>
-    const nominalInput = document.getElementById('nominal');
+    const nominalInput = document.getElementById('price');
 
     nominalInput.addEventListener('input', function (e) {
         let value = this.value.replace(/[^0-9]/g, '');

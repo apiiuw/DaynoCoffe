@@ -40,8 +40,8 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="nominal">Nominal</label>
-                                        <input type="text" class="form-control" name="nominal" id="nominal" value="Rp {{ number_format($expanse->nominal, 0, ',', '.') }}" required>
+                                        <label for="price">Harga</label>
+                                        <input type="text" class="form-control" name="price" id="price" value="Rp {{ number_format($expanse->price, 0, ',', '.') }}" required>
                                     </div>
 
                                     <div class="form-group">
@@ -62,7 +62,7 @@
 
 @push('scripts')
 <script>
-    const nominalInput = document.getElementById('nominal');
+    const nominalInput = document.getElementById('price');
 
     nominalInput.addEventListener('input', function (e) {
         let value = this.value.replace(/[^0-9]/g, '');

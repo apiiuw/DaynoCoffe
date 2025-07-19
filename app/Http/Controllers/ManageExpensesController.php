@@ -24,17 +24,17 @@ class ManageExpensesController extends Controller
         $request->validate([
             'category' => 'required|string|max:255',
             'item' => 'required|string|max:255',
-            'nominal' => 'required|string',
+            'price' => 'required|string',
             'keterangan' => 'nullable|string',
         ]);
 
         // Hilangkan format "Rp" dan titik agar bisa disimpan sebagai angka
-        $cleanNominal = preg_replace('/[^0-9]/', '', $request->nominal);
+        $cleanNominal = preg_replace('/[^0-9]/', '', $request->price);
 
         ExpensesCategory::create([
             'category' => $request->category,
             'item' => $request->item,
-            'nominal' => $cleanNominal,
+            'price' => $cleanNominal,
             'keterangan' => $request->keterangan,
         ]);
 
@@ -52,17 +52,17 @@ class ManageExpensesController extends Controller
         $request->validate([
             'category' => 'required|string|max:255',
             'item' => 'required|string|max:255',
-            'nominal' => 'required|string',
+            'price' => 'required|string',
             'keterangan' => 'nullable|string',
         ]);
 
-        $cleanNominal = preg_replace('/[^0-9]/', '', $request->nominal);
+        $cleanNominal = preg_replace('/[^0-9]/', '', $request->price);
 
         $expanse = ExpensesCategory::findOrFail($id);
         $expanse->update([
             'category' => $request->category,
             'item' => $request->item,
-            'nominal' => $cleanNominal,
+            'price' => $cleanNominal,
             'keterangan' => $request->keterangan,
         ]);
 

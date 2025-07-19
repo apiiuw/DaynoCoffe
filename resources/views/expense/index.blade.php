@@ -44,7 +44,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Filter</button>
+                                    <button type="submit" class="btn btn-danger">Filter</button>
                                     <a href="{{ route('index.income') }}" class="btn btn-secondary ml-2">Reset</a>
                                 </form>
 
@@ -54,16 +54,16 @@
                                             <th>No</th>
                                             <th>ID Pengeluaran</th>
                                             <th>
-                                                <a href="{{ request()->fullUrlWithQuery(['field' => 'date', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}">
+                                                <a href="{{ request()->fullUrlWithQuery(['field' => 'date', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}" class="text-danger">
                                                     Tanggal
                                                     @if (request()->query('field') == 'date')
                                                         @if (request()->query('sort') == 'asc')
-                                                            <i class="fas fa-sort-up"></i>
+                                                            <i class="fas fa-sort-up text-danger"></i>
                                                         @else
-                                                            <i class="fas fa-sort-down"></i>
+                                                            <i class="fas fa-sort-down text-danger"></i>
                                                         @endif
                                                     @else
-                                                        <i class="fas fa-sort"></i>
+                                                        <i class="fas fa-sort text-danger"></i>
                                                     @endif
                                                 </a>
                                             </th>
@@ -73,16 +73,16 @@
                                             <th>Jumlah</th>
                                             <th>Harga Keseluruhan</th>
                                             <th>
-                                                <a href="{{ request()->fullUrlWithQuery(['field' => 'amount', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}">
+                                                <a href="{{ request()->fullUrlWithQuery(['field' => 'amount', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}" class="text-danger">
                                                     Total Harga
                                                     @if (request()->query('field') == 'amount')
                                                         @if (request()->query('sort') == 'asc')
-                                                            <i class="fas fa-sort-up"></i>
+                                                            <i class="fas fa-sort-up text-danger"></i>
                                                         @else
-                                                            <i class="fas fa-sort-down"></i>
+                                                            <i class="fas fa-sort-down text-danger"></i>
                                                         @endif
                                                     @else
-                                                        <i class="fas fa-sort"></i>
+                                                        <i class="fas fa-sort text-danger"></i>
                                                     @endif
                                                 </a>
                                             </th>
@@ -236,8 +236,8 @@ document.addEventListener("DOMContentLoaded", function () {
             datasets: [{
                 label: 'Pengeluaran Bulanan', // Label untuk data bulanan
                 data: monthlyData, // Data untuk chart bulanan
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 1)',
                 fill: true
             }]
         },

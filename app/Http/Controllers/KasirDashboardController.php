@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\Income;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-
+ 
 class KasirDashboardController extends Controller
 {
     public function index()
