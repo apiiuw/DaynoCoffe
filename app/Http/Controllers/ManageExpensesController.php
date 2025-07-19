@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\ExpansesCategory;
+use App\Models\ExpensesCategory;
 
-class ManageExpansesController extends Controller
+class ManageExpensesController extends Controller
 {
     public function index()
     {
-        $expanses = ExpansesCategory::all();
+        $expanses = ExpensesCategory::all();
         return view('manage-expanses.index', compact('expanses'));
     }
 
     public function create()
     {
-        $expanses = ExpansesCategory::all();
+        $expanses = ExpensesCategory::all();
         return view('manage-expanses.create');
     }
 
@@ -31,7 +31,7 @@ class ManageExpansesController extends Controller
         // Hilangkan format "Rp" dan titik agar bisa disimpan sebagai angka
         $cleanNominal = preg_replace('/[^0-9]/', '', $request->nominal);
 
-        ExpansesCategory::create([
+        ExpensesCategory::create([
             'category' => $request->category,
             'item' => $request->item,
             'nominal' => $cleanNominal,
@@ -43,7 +43,7 @@ class ManageExpansesController extends Controller
 
     public function edit($id)
     {
-        $expanse = ExpansesCategory::findOrFail($id);
+        $expanse = ExpensesCategory::findOrFail($id);
         return view('manage-expanses.edit', compact('expanse'));
     }
 
@@ -58,7 +58,7 @@ class ManageExpansesController extends Controller
 
         $cleanNominal = preg_replace('/[^0-9]/', '', $request->nominal);
 
-        $expanse = ExpansesCategory::findOrFail($id);
+        $expanse = ExpensesCategory::findOrFail($id);
         $expanse->update([
             'category' => $request->category,
             'item' => $request->item,
@@ -71,7 +71,7 @@ class ManageExpansesController extends Controller
 
     public function destroy($id)
     {
-        $expanse = ExpansesCategory::findOrFail($id);
+        $expanse = ExpensesCategory::findOrFail($id);
         $expanse->delete();
 
         return redirect()->route('manage-expanses.index')->with('success-destroy', 'Data berhasil dihapus.');

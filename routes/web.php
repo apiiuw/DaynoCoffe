@@ -3,7 +3,7 @@
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\ManageMenuController;
 use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\ManageExpansesController;
+use App\Http\Controllers\ManageExpensesController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\UserProfileController;
@@ -102,12 +102,12 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/update-expense/{id}', [ExpenseController::class, 'update'])->name('update.expense');
 
     // Route Manage Expanses
-    Route::get('/manage-expenses', [ManageExpansesController::class, 'index'])->name('manage-expanses.index');
-    Route::get('/manage-expanses/{id}/edit', [ManageExpansesController::class, 'edit'])->name('manage-expanses.edit');
-    Route::put('/manage-expanses/{id}', [ManageExpansesController::class, 'update'])->name('manage-expanses.update');
-    Route::delete('/manage-expanses/{id}', [ManageExpansesController::class, 'destroy'])->name('manage-expanses.destroy');
-    Route::get('/manage-expanses/create', [ManageExpansesController::class, 'create'])->name('manage-expanses.create');
-    Route::post('/manage-expanses', [ManageExpansesController::class, 'store'])->name('manage-expanses.store');
+    Route::get('/manage-expenses', [ManageExpensesController::class, 'index'])->name('manage-expanses.index');
+    Route::get('/manage-expanses/{id}/edit', [ManageExpensesController::class, 'edit'])->name('manage-expanses.edit');
+    Route::put('/manage-expanses/{id}', [ManageExpensesController::class, 'update'])->name('manage-expanses.update');
+    Route::delete('/manage-expanses/{id}', [ManageExpensesController::class, 'destroy'])->name('manage-expanses.destroy');
+    Route::get('/manage-expanses/create', [ManageExpensesController::class, 'create'])->name('manage-expanses.create');
+    Route::post('/manage-expanses', [ManageExpensesController::class, 'store'])->name('manage-expanses.store');
 
     //Route Debts
     Route::get('/debt', [DebtController::class, 'index'])->name('index.debt');
