@@ -32,7 +32,7 @@
                                 <h5 class="card-title text-light">Total Pemasukan</h5>
 
                                 <h5 class="card-text font-weight-bold" id="totalIncomeText">
-                                 Rp. 0
+                                    Rp. {{ number_format($totalIncome, 0, ',', '.') }}
                                 </h5>
                                 <a href="{{ route('index.income') }}" class="card-link text-white">Lihat selengkapnya </a>
 
@@ -233,40 +233,14 @@
         type: 'bar',
         data: {
             labels: {!! json_encode($months) !!},
-            datasets: [
-                {
-                    label: 'Pemasukan',
-                    data: {!! json_encode(array_values($incomeData)) !!},
-                    backgroundColor: gradientIncome,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    barThickness: 30
-                },
-                {
-                    label: 'Pengeluaran',
-                    data: {!! json_encode(array_values($expenseData)) !!},
-                    backgroundColor: gradientExpense,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1,
-                    barThickness: 30
-                },
-                {
-                    label: 'Hutang',
-                    data: {!! json_encode(array_values($debtData)) !!},
-                    backgroundColor: gradientDebt,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    barThickness: 30
-                },
-                {
-                    label: 'Tagihan',
-                    data: {!! json_encode(array_values($billData)) !!},
-                    backgroundColor: gradientBill,
-                    borderColor: 'rgba(255, 206, 86, 1)',
-                    borderWidth: 1,
-                    barThickness: 30
-                }
-            ]
+            datasets: [{
+                label: 'Pemasukan',
+                data: {!! json_encode(array_values($incomeData)) !!},
+                backgroundColor: gradientIncome,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                barThickness: 30
+            }]
         },
         options: {
             responsive: true,
@@ -339,19 +313,20 @@
         },
         plugins: [ChartDataLabels]
     });
+
 });
     </script>
 
-    <script>
+<script>
     document.addEventListener("DOMContentLoaded", function () {
         var ctx = document.getElementById('categoryChart').getContext('2d');
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: {!! json_encode($categoryData->keys()->toArray()) !!},
+                labels: {!! json_encode($categoryData['labels']) !!},
                 datasets: [{
                     label: 'Pemasukan',
-                    data: {!! json_encode($categoryData->values()->toArray()) !!},
+                    data: {!! json_encode($categoryData['data']) !!},
                     backgroundColor: [
                         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
                     ],

@@ -61,8 +61,9 @@
                                 <h5 class="card-title text-light">Total Pemasukan</h5>
 
                                 <h5 class="card-text font-weight-bold" id="totalIncomeText">
-                                 Rp. 0
+                                    Rp. {{ number_format($totalIncome, 0, ',', '.') }}
                                 </h5>
+
                                 <a href="{{ route('index.income') }}" class="card-link text-white">Lihat selengkapnya </a>
 
                             </div>
@@ -369,6 +370,7 @@
         },
         plugins: [ChartDataLabels]
     });
+
 });
     </script>
 
