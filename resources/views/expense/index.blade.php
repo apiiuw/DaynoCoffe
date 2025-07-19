@@ -25,107 +25,158 @@
                                 </div>
                             </div>
                             <div class="card-body">
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>
-                    <a href="{{ request()->fullUrlWithQuery(['field' => 'date', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}">
-                        Tanggal
-                        @if (request()->query('field') == 'date')
-                            @if (request()->query('sort') == 'asc')
-                                <i class="fas fa-sort-up"></i>
-                            @elseif(request()->query('sort') == 'desc')
-                                <i class="fas fa-sort-down"></i>
-                            @endif
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>Kategori</th>
-                <th>
-                    <a href="{{ request()->fullUrlWithQuery(['field' => 'amount', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}">
-                        Jumlah
-                        @if (request()->query('field') == 'amount')
-                            @if (request()->query('sort') == 'asc')
-                                <i class="fas fa-sort-up"></i>
-                            @elseif(request()->query('sort') == 'desc')
-                                <i class="fas fa-sort-down"></i>
-                            @endif
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>Deskripsi</th>
+                                <form method="GET" action="{{ route('index.expense') }}" class="form-inline mb-3">
+                                    <div class="form-group mr-2">
+                                        <label for="month" class="mr-2">Bulan</label>
+                                        <select name="month" id="month" class="form-control">
+                                            <option value="">-- Semua --</option>
+                                            @for ($m = 1; $m <= 12; $m++)
+                                                <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <div class="form-group mr-2">
+                                        <label for="year" class="mr-2">Tahun</label>
+                                        <select name="year" id="year" class="form-control">
+                                            <option value="">-- Semua --</option>
+                                            @foreach ($availableYears as $year)
+                                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Filter</button>
+                                    <a href="{{ route('index.income') }}" class="btn btn-secondary ml-2">Reset</a>
+                                </form>
 
-                @if(auth()->user()->role === 'owner')
-                    <th>manager</th>
-                @endif
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>ID Pengeluaran</th>
+                                            <th>
+                                                <a href="{{ request()->fullUrlWithQuery(['field' => 'date', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}">
+                                                    Tanggal
+                                                    @if (request()->query('field') == 'date')
+                                                        @if (request()->query('sort') == 'asc')
+                                                            <i class="fas fa-sort-up"></i>
+                                                        @else
+                                                            <i class="fas fa-sort-down"></i>
+                                                        @endif
+                                                    @else
+                                                        <i class="fas fa-sort"></i>
+                                                    @endif
+                                                </a>
+                                            </th>
+                                            <th>Kategori</th>
+                                            <th>Deskripsi</th>
+                                            <th>Harga Satuan</th>
+                                            <th>Jumlah</th>
+                                            <th>Harga Keseluruhan</th>
+                                            <th>
+                                                <a href="{{ request()->fullUrlWithQuery(['field' => 'amount', 'sort' => request()->query('sort') == 'asc' ? 'desc' : 'asc']) }}">
+                                                    Total Harga
+                                                    @if (request()->query('field') == 'amount')
+                                                        @if (request()->query('sort') == 'asc')
+                                                            <i class="fas fa-sort-up"></i>
+                                                        @else
+                                                            <i class="fas fa-sort-down"></i>
+                                                        @endif
+                                                    @else
+                                                        <i class="fas fa-sort"></i>
+                                                    @endif
+                                                </a>
+                                            </th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($expensesGrouped as $groupedExpenses)
+                                            @php
+                                                $firstExpenses = $groupedExpenses->first();
+                                            @endphp
 
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($expenses as $expense)
-                <tr>
-                    <td>{{ $loop->iteration + ($expenses->currentPage() - 1) * $expenses->perPage() }}</td>
-                    <td>{{ date('d-m-Y', strtotime($expense->date)) }}</td>
-                    <td>{{ $expense->category }}</td>
-                    <td>Rp {{ number_format($expense->amount, 0, ',', '.') }}</td>
-                    <td>{{ $expense->description }}</td>
+                                            @foreach ($groupedExpenses as $expenses) <!-- Loop untuk setiap item dalam grup -->
+                                                <tr>
+                                                    @if ($loop->first) <!-- Hanya untuk baris pertama di grup -->
+                                                        <td rowspan="{{ $groupedExpenses->count() }}">{{ $loop->parent->iteration }}</td>
+                                                        <td rowspan="{{ $groupedExpenses->count() }}">#{{ $firstExpenses->id_expenses }}</td>
+                                                        <td rowspan="{{ $groupedExpenses->count() }}">{{ date('d-m-Y', strtotime($firstExpenses->date)) }}</td>
+                                                        <td rowspan="{{ $groupedExpenses->count() }}"> <!-- Kolom kategori diulang untuk setiap entri dalam grup -->
+                                                            @foreach ($groupedExpenses as $innerExpenses)
+                                                                <p>{{ $innerExpenses->category }}</p>
+                                                            @endforeach
+                                                        </td>
+                                                        <td rowspan="{{ $groupedExpenses->count() }}"> <!-- Kolom deskripsi diulang untuk setiap entri dalam grup -->
+                                                            @foreach ($groupedExpenses as $innerExpenses)
+                                                                <p>{{ $innerExpenses->description }}</p>
+                                                            @endforeach
+                                                        </td>
+                                                        <td rowspan="{{ $groupedExpenses->count() }}"> <!-- Kolom harga satuan diulang untuk setiap entri dalam grup -->
+                                                            @foreach ($groupedExpenses as $innerExpennses)
+                                                                <p>Rp {{ number_format($innerExpennses->price, 0, ',', '.') }}</p>
+                                                            @endforeach
+                                                        </td>
+                                                        <td rowspan="{{ $groupedExpenses->count() }}"> <!-- Kolom jumlah diulang untuk setiap entri dalam grup -->
+                                                            @foreach ($groupedExpenses as $innerExpenses)
+                                                                <p>{{ $innerExpenses->quantity }}</p>
+                                                            @endforeach
+                                                        </td>
+                                                        <td rowspan="{{ $groupedExpenses->count() }}"> <!-- Kolom harga keseluruhan diulang untuk setiap entri dalam grup -->
+                                                            @foreach ($groupedExpenses as $innerExpenses)
+                                                                <p>Rp {{ number_format($innerExpenses->total_price, 0, ',', '.') }}</p>
+                                                            @endforeach
+                                                        </td>
+                                                    @endif
 
-                    @if(auth()->user()->role === 'owner')
-                        <td>{{ $expense->user->name ?? '-' }}</td>
-                    @endif
+                                                    <!-- Kolom Total Harga dan Aksi hanya ditampilkan di baris pertama -->
+                                                    @if ($loop->first)
+                                                        <td rowspan="{{ $groupedExpenses->count() }}">Rp {{ number_format($firstExpenses->amount, 0, ',', '.') }}</td>
+                                                        <td rowspan="{{ $groupedExpenses->count() }}">
 
-                    <td>
-                        <a href="{{ route('edit.expense', $expense->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $expense->id }})">Delete</button>
-                        <form id="delete-form-{{ $expense->id }}" action="{{ route('delete.expense', $expense->id) }}" method="POST" style="display: none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-<!-- /.card-body -->
+                                                            <a href="{{ route('edit.expense', $firstExpenses->id_expenses) }}" class="btn btn-warning btn-sm">Edit</a>
+                                                        </td>
+                                                    @endif
+                                                </tr>
+                                            @endforeach
+                                        @endforeach
+                                    </tbody>
 
-<div class="card-footer">
-    <p>Total Pengeluaran: Rp {{ number_format($totalExpense, 0, ',', '.') }}</p>
-    <div class="d-flex justify-content-center">
-        {{ $expenses->links('pagination::bootstrap-4') }}
-    </div>
-</div>
+                                </table>
 
-                <!-- Chart Section -->
-               <div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Diagram Pengeluaran</h3>
-            </div>
-            <div class="card-body">
-                <div class="form-group mb-3">
-                    <label for="expenseViewSelector">Tampilan Data:</label>
-                    <select id="expenseViewSelector" class="form-control" style="max-width: 200px;">
-                        <option value="monthly" selected>Per Bulan</option>
-                        <option value="daily">Per Hari</option>
-                    </select>
+                            </div>
+
+                            <div class="card-footer">
+                                <p>Total Pengeluaran Keseluruhan: Rp {{ number_format($totalExpenses, 0, ',', '.') }}</p>
+                                <div class="d-flex justify-content-center">
+                                    {{ $rawData->links('pagination::bootstrap-4') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <canvas id="expenseChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Chart Section -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Diagram Pengeluaran per Bulan</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="viewSelector">Tampilan Data:</label>
+                            <select id="viewSelector" class="form-control" style="max-width: 200px;">
+                                <option value="monthly" selected>Per Bulan</option>
+                                <option value="daily">Per Hari</option>
+                            </select>
+                        </div>
+                        <canvas id="expensesChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-
-    </div>
-    </section>
     </div>
 @endsection
 
@@ -168,50 +219,52 @@
     <!-- Chart.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const monthlyLabels = {!! json_encode($months) !!};
-    const monthlyData = {!! json_encode($expenseData->values()) !!};
-    const dailyLabels = {!! json_encode($dailyExpenseLabels) !!};
-    const dailyData = {!! json_encode($dailyExpenseValues) !!};
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById('expensesChart').getContext('2d');
 
-    const ctx = document.getElementById('expenseChart').getContext('2d');
-    let expenseChart = new Chart(ctx, {
+    // Mengambil data dari controller untuk monthly dan daily
+    const monthlyLabels = {!! json_encode($months) !!};
+    const monthlyData = {!! json_encode($monthlyData) !!};
+
+    const dailyLabels = {!! json_encode($daily['labels']) !!};  // Use daily data for labels
+    const dailyData = {!! json_encode($daily['values']) !!};  // Use daily data for values
+
+    let expensesChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: monthlyLabels,
+            labels: monthlyLabels,  // Menampilkan bulan sebagai label
             datasets: [{
-                label: 'Pengeluaran',
-                data: monthlyData,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                label: 'Pengeluaran Bulanan', // Label untuk data bulanan
+                data: monthlyData, // Data untuk chart bulanan
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 fill: true
             }]
         },
         options: {
             responsive: true,
             scales: {
-                y: {
-                    beginAtZero: true
-                }
+                y: { beginAtZero: true }
             }
         }
     });
 
-    // Toggle view
-    document.getElementById('expenseViewSelector').addEventListener('change', function () {
-        if (this.value === 'daily') {
-            expenseChart.data.labels = dailyLabels;
-            expenseChart.data.datasets[0].data = dailyData;
-            expenseChart.data.datasets[0].label = 'Pengeluaran Harian';
+    // Event listener untuk memilih tampilan data bulanan atau harian
+    document.getElementById('viewSelector').addEventListener('change', function () {
+        const selected = this.value;
+        if (selected === 'daily') {
+            expensesChart.data.labels = dailyLabels; // Label harian
+            expensesChart.data.datasets[0].data = dailyData; // Data harian
+            expensesChart.data.datasets[0].label = 'Pengeluaran Harian'; // Label chart harian
         } else {
-            expenseChart.data.labels = monthlyLabels;
-            expenseChart.data.datasets[0].data = monthlyData;
-            expenseChart.data.datasets[0].label = 'Pengeluaran Bulanan';
+            expensesChart.data.labels = monthlyLabels; // Label bulanan
+            expensesChart.data.datasets[0].data = monthlyData; // Data bulanan
+            expensesChart.data.datasets[0].label = 'Pengeluaran Bulanan'; // Label chart bulanan
         }
-        expenseChart.update();
+        expensesChart.update(); // Update chart
     });
 });
-</script>
 
+    </script>
 
 @endpush

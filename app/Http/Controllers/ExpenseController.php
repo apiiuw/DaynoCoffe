@@ -10,76 +10,153 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ExpenseController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    // public function index(Request $request)
+    // {
+    //     $user = Auth::user();
+
+    //     $sortField = $request->query('field', 'date');
+    //     $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
+
+    //     $validSortFields = ['date', 'amount'];
+    //     if (!in_array($sortField, $validSortFields)) {
+    //         $sortField = 'date';
+    //     }
+
+    //     if ($user->role === 'manager') {
+    //         $expensesQuery = Expense::where('user_id', $user->id);
+    //     } elseif ($user->role === 'owner') {
+    //         $managerIds = User::where('role', 'manager')->pluck('id');
+    //         $expensesQuery = Expense::whereIn('user_id', $managerIds);
+    //     } else {
+    //         $expensesQuery = Expense::query()->whereRaw('0=1'); // kosongkan data untuk role lain
+    //     }
+
+    //     $expenses = $expensesQuery->orderBy($sortField, $sortDirection)
+    //         ->with('user')
+    //         ->paginate(5);
+
+    //     $totalExpense = $expensesQuery->sum('amount');
+
+    //     $expenseData = $expenses->groupBy(function ($expense) {
+    //         return Carbon::parse($expense->date)->format('F Y');
+    //     })->map(function ($grouped) {
+    //         return $grouped->sum('amount');
+    //     });
+
+    //     $months = $expenseData->keys()->toArray();
+
+    //     // Data Harian (5 bulan terakhir)
+    //     $start = Carbon::now()->subMonths(5)->startOfMonth();
+    //     $end = Carbon::now()->endOfMonth();
+
+    //     $dailyExpenseRaw = (clone $expensesQuery)
+    //         ->whereBetween('date', [$start, $end])
+    //         ->select(DB::raw('DATE(date) as day'), DB::raw('SUM(amount) as total'))
+    //         ->groupBy('day')
+    //         ->orderBy('day')
+    //         ->get();
+
+    //     $dailyExpenseLabels = $dailyExpenseRaw->pluck('day');
+    //     $dailyExpenseValues = $dailyExpenseRaw->pluck('total');
+
+    //     $categoryData = (clone $expensesQuery)
+    //         ->select('category', DB::raw('SUM(amount) as total'))
+    //         ->groupBy('category')
+    //         ->pluck('total', 'category');
+
+    //     return view('expense.index', compact(
+    //         'expenses',
+    //         'totalExpense',
+    //         'expenseData',
+    //         'sortField',
+    //         'sortDirection',
+    //         'months',
+    //         'categoryData',
+    //         'dailyExpenseLabels',
+    //         'dailyExpenseValues'
+    //     ));
+    // }
+
+// Controller: index method
+public function index(Request $request)
 {
     $user = Auth::user();
+    $items = ExpensesCategory::all();
 
     $sortField = $request->query('field', 'date');
     $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
-
     $validSortFields = ['date', 'amount'];
     if (!in_array($sortField, $validSortFields)) {
         $sortField = 'date';
     }
 
+    $managerIds = collect();
+    $query = expense::query();
+
     if ($user->role === 'manager') {
-        $expensesQuery = Expense::where('user_id', $user->id);
+        $query->where('user_id', $user->id);
     } elseif ($user->role === 'owner') {
         $managerIds = User::where('role', 'manager')->pluck('id');
-        $expensesQuery = Expense::whereIn('user_id', $managerIds);
-    } else {
-        $expensesQuery = Expense::query()->whereRaw('0=1'); // kosongkan data untuk role lain
+        $query->whereIn('user_id', $managerIds);
     }
 
-    $expenses = $expensesQuery->orderBy($sortField, $sortDirection)
-        ->with('user')
-        ->paginate(5);
+    if ($request->filled('month')) {
+        $query->whereMonth('date', $request->month);
+    }
+    if ($request->filled('year')) {
+        $query->whereYear('date', $request->year);
+    }
 
-    $totalExpense = $expensesQuery->sum('amount');
+    $perPage = 10;
 
-    $expenseData = $expenses->groupBy(function ($expense) {
-        return Carbon::parse($expense->date)->format('F Y');
-    })->map(function ($grouped) {
-        return $grouped->sum('amount');
-    });
+    // Use paginate here with $perPage
+    $rawData = $query->orderBy($sortField, $sortDirection)->paginate($perPage);
 
-    $months = $expenseData->keys()->toArray();
+    // Group data for display
+    $expensesGrouped = $rawData->getCollection()->groupBy('id_expenses');
+    $groupedKeys = $expensesGrouped->keys();
 
-    // Data Harian (5 bulan terakhir)
-    $start = Carbon::now()->subMonths(5)->startOfMonth();
-    $end = Carbon::now()->endOfMonth();
+    $totalExpensesPerGroup = $expensesGrouped->map(fn($group) => $group->sum('total_price'));
+    $totalExpenses = $totalExpensesPerGroup->sum();
 
-    $dailyExpenseRaw = (clone $expensesQuery)
-        ->whereBetween('date', [$start, $end])
-        ->select(DB::raw('DATE(date) as day'), DB::raw('SUM(amount) as total'))
-        ->groupBy('day')
-        ->orderBy('day')
-        ->get();
+    $monthlyExpenses = $rawData->getCollection()->groupBy(fn($i) => Carbon::parse($i->date)->format('F'));
+    $monthlyData = $monthlyExpenses->map(fn($group) => $group->groupBy('id_expenses')->map(fn($g) => $g->sum('total_price'))->sum())->values()->toArray();
+    $months = $monthlyExpenses->keys()->toArray();
 
-    $dailyExpenseLabels = $dailyExpenseRaw->pluck('day');
-    $dailyExpenseValues = $dailyExpenseRaw->pluck('total');
+    // Calculate daily expenses
+    $dailyExpenses = $rawData->getCollection()->groupBy(fn($i) => Carbon::parse($i->date)->format('Y-m-d'));
+    $dailyData = $dailyExpenses->map(fn($group) => $group->groupBy('id_expenses')->map(fn($g) => $g->sum('total_price'))->sum());
 
-    $categoryData = (clone $expensesQuery)
-        ->select('category', DB::raw('SUM(amount) as total'))
-        ->groupBy('category')
-        ->pluck('total', 'category');
+    // Format daily data
+    $daily = [
+        'labels' => $dailyData->keys()->toArray(),
+        'values' => $dailyData->values()->toArray(),
+    ];
+
+    $availableYears = expense::selectRaw('YEAR(date) as year')
+        ->when($user->role === 'manager', fn($q) => $q->where('user_id', $user->id))
+        ->when($user->role === 'owner', fn($q) => $q->whereIn('user_id', $managerIds))
+        ->distinct()
+        ->orderByDesc('year')
+        ->pluck('year');
 
     return view('expense.index', compact(
-        'expenses',
-        'totalExpense',
-        'expenseData',
-        'sortField',
-        'sortDirection',
+        'rawData',  // Paginated data
+        'expensesGrouped', // Grouped expenses data
+        'totalExpenses',
+        'totalExpensesPerGroup',
+        'monthlyData',
         'months',
-        'categoryData',
-        'dailyExpenseLabels',
-        'dailyExpenseValues'
+        'daily',  // Pass the daily data to view
+        'availableYears',
+        'items'
     ));
 }
 

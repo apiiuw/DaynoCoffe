@@ -1,7 +1,7 @@
 @extends('adminlte.layouts.app')
 
 @section('title', 'Dayno Kopi | Halaman Pemasukan')
-
+ 
 @section('content')
     <div class="content-wrapper">
         <div class="content-header">
