@@ -14,6 +14,7 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('assets/dist/css/adminlte.min.css') }}">
     <script src="{{ asset('assets/plugins/jquery/jquery.min.js') }}"></script>
+    <link rel="icon" href="{{ asset('assetsLanding/img/1.png') }}" type="image/png">
 
     <script src="https://kit.fontawesome.com/d7833bfda5.js" crossorigin="anonymous"></script>
 

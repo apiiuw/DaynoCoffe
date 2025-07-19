@@ -17,6 +17,7 @@
     <!-- <link rel="stylesheet" href="{{ asset('assets/dist/css/adminlte.min.css') }}"> -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <link rel="icon" href="{{ asset('assetsLanding/img/1.png') }}" type="image/png">
 </head>
 @yield('content')
 

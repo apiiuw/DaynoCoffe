@@ -12,6 +12,7 @@
     <!-- Favicons -->
     <link href="assetsLanding/img/favicon.png" rel="icon" />
     <link href="assetsLanding/img/apple-touch-icon.png" rel="apple-touch-icon" />
+    <link rel="icon" href="{{ asset('assetsLanding/img/1.png') }}" type="image/png">
 
     <!-- Google Fonts -->
     <link
