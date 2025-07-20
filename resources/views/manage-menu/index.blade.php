@@ -32,7 +32,7 @@
                                             <th>No</th>
                                             <th>Kategori</th>
                                             <th>Menu</th>
-                                            <th>Harga</th>
+                                            <th>Harga Satuan</th>
                                             <th>Ketersediaan</th>
                                             <th>Aksi</th>
                                         </tr>

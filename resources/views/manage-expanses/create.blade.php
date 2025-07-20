@@ -29,19 +29,27 @@
                                             <option value="Bahan Baku">Bahan Baku</option>
                                             <option value="Biaya Promosi">Biaya Promosi</option>
                                             <option value="Gaji Karyawan">Gaji Karyawan</option>
+                                            <option value="Other">Lainnya</option>
                                         </select>
                                     </div>
+
+                                    <!-- Inputan untuk kategori Other -->
+                                    <div class="form-group" id="other-category" style="display: none;">
+                                        <label for="other-category-input">Kategori Lainnya</label>
+                                        <input type="text" class="form-control" id="other-category-input" name="other_category" placeholder="Ketikkan kategori lain...">
+                                    </div>
+
                                     <div class="form-group">
                                         <label for="item">Nama Item</label>
-                                        <input type="text" class="form-control" name="item" id="item" required>
+                                        <input type="text" class="form-control" name="item" id="item" placeholder="Ketikkan nama item..." required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="price">Harga</label>
-                                        <input type="text" class="form-control" name="price" id="price" required>
+                                        <label for="price">Harga Satuan</label>
+                                        <input type="text" class="form-control" name="price" id="price" placeholder="Ketikkan harga satuan..." required>
                                     </div>
                                     <div class="form-group">
                                         <label for="keterangan">Keterangan</label>
-                                        <textarea class="form-control" name="keterangan" id="keterangan" rows="3"></textarea>
+                                        <textarea class="form-control" name="keterangan" id="keterangan" placeholder="Ketikkan keterangan..." rows="3"></textarea>
                                     </div>
                                     <button type="submit" class="btn btn-primary">Simpan</button>
                                     <a href="{{ route('manage-expanses.index') }}" class="btn btn-danger">Kembali</a>
@@ -78,6 +86,18 @@
         rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
         return 'Rp ' + rupiah;
     }
+
+    // Menambahkan event listener untuk dropdown kategori
+    document.getElementById('category').addEventListener('change', function () {
+        const otherCategoryInput = document.getElementById('other-category');
+        const category = this.value;
+
+        if (category === 'Other') {
+            otherCategoryInput.style.display = 'block';  // Menampilkan input untuk kategori lain
+        } else {
+            otherCategoryInput.style.display = 'none';  // Menyembunyikan input untuk kategori lain
+        }
+    });
 </script>
 @endpush
 

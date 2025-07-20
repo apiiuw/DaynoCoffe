@@ -31,8 +31,14 @@ class ManageExpensesController extends Controller
         // Hilangkan format "Rp" dan titik agar bisa disimpan sebagai angka
         $cleanNominal = preg_replace('/[^0-9]/', '', $request->price);
 
+        // Cek jika kategori adalah "Other"
+        $category = $request->category;
+        if ($category == 'Other') {
+            $category = $request->other_category;  // Gunakan input kategori lainnya
+        }
+
         ExpensesCategory::create([
-            'category' => $request->category,
+            'category' => $category,
             'item' => $request->item,
             'price' => $cleanNominal,
             'keterangan' => $request->keterangan,
@@ -58,9 +64,18 @@ class ManageExpensesController extends Controller
 
         $cleanNominal = preg_replace('/[^0-9]/', '', $request->price);
 
+        // Temukan kategori berdasarkan id
         $expanse = ExpensesCategory::findOrFail($id);
+
+        // Cek jika kategori adalah "Other"
+        $category = $request->category;
+        if ($category == 'Other') {
+            $category = $request->other_category;  // Gunakan input kategori lainnya
+        }
+
+        // Update data pengeluaran
         $expanse->update([
-            'category' => $request->category,
+            'category' => $category,
             'item' => $request->item,
             'price' => $cleanNominal,
             'keterangan' => $request->keterangan,
@@ -68,6 +83,7 @@ class ManageExpensesController extends Controller
 
         return redirect()->route('manage-expanses.index')->with('success', 'Data berhasil diperbarui.');
     }
+
 
     public function destroy($id)
     {

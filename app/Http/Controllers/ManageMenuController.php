@@ -14,6 +14,40 @@ class ManageMenuController extends Controller
         return view('manage-menu.index', compact('menus'));
     }
 
+    public function create()
+    {
+        return view('manage-menu.create');
+    }
+
+    public function store(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'category' => 'required|string|max:255',
+            'menu' => 'required|string|max:255',
+            'price' => 'required',
+        ]);
+
+        // Hilangkan karakter non-numerik pada harga
+        $price = preg_replace('/[^\d]/', '', $request->price); // Hilangkan Rp dan titik
+
+        // Jika kategori adalah "Other", gunakan nilai kategori lain
+        $category = $request->category;
+        if ($category == 'Other' && !empty($request->other_category)) {
+            $category = $request->other_category;  // Gunakan input kategori lain
+        }
+
+        // Simpan menu ke database
+        \App\Models\Menu::create([
+            'category' => $category,  // Simpan kategori yang benar
+            'menu' => $request->menu,
+            'price' => $price,
+            'availability' => 'Belum Diatur',
+        ]);
+
+        return redirect()->route('manage-menu.index')->with('success', 'Menu berhasil ditambahkan!');
+    }
+
     // Menampilkan form edit
     public function edit($id)
     {
@@ -24,6 +58,7 @@ class ManageMenuController extends Controller
     // Menyimpan hasil edit
     public function update(Request $request, $id)
     {
+        // Validasi input
         $request->validate([
             'category' => 'required|string|max:255',
             'menu' => 'required|string|max:255',
@@ -31,12 +66,21 @@ class ManageMenuController extends Controller
             'availability' => 'required|string',
         ]);
 
+        // Temukan menu berdasarkan id
         $menu = Menu::findOrFail($id);
 
+        // Hilangkan karakter non-numerik pada harga
         $price = preg_replace('/[^\d]/', '', $request->price);
 
+        // Jika kategori adalah "Other", gunakan nilai kategori lain
+        $category = $request->category;
+        if ($category == 'Other' && !empty($request->other_category)) {
+            $category = $request->other_category; 
+        }
+
+        // Update menu ke database
         $menu->update([
-            'category' => $request->category,
+            'category' => $category, 
             'menu' => $request->menu,
             'price' => $price,
             'availability' => $request->availability,
@@ -45,8 +89,6 @@ class ManageMenuController extends Controller
         return redirect()->route('manage-menu.index')->with('success', 'Menu berhasil diperbarui!');
     }
 
-
-    // Menghapus menu
     public function destroy($id)
     {
         $menu = Menu::findOrFail($id);
@@ -54,30 +96,4 @@ class ManageMenuController extends Controller
 
         return redirect()->route('manage-menu.index')->with('success-destroy', 'Menu deleted successfully!'); 
     }
-
-    public function create()
-    {
-        return view('manage-menu.create');
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'category' => 'required|string|max:255',
-            'menu' => 'required|string|max:255',
-            'price' => 'required',
-        ]);
-
-        $price = preg_replace('/[^\d]/', '', $request->price); // hilangkan Rp dan titik
-
-        \App\Models\Menu::create([
-            'category' => $request->category,
-            'menu' => $request->menu,
-            'price' => $price,
-            'availability' => 'Belum Diatur',
-        ]);
-
-        return redirect()->route('manage-menu.index')->with('success', 'Menu berhasil ditambahkan!');
-    }
-
 }

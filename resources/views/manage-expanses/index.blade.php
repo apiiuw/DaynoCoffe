@@ -23,7 +23,7 @@
                                 <th>No</th>
                                 <th>Kategori</th>
                                 <th>Item</th>
-                                <th>Harga</th>
+                                <th>Harga Satuan</th>
                                 <th>Keterangan</th>
                                 <th>Aksi</th>
                             </tr>

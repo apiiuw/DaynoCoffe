@@ -73,7 +73,7 @@
 
                                 <!-- Harga -->
                                 <div class="form-group">
-                                    <label>Harga</label>
+                                    <label>Harga Satuan</label>
                                     <input type="number" class="form-control price" name="price[]" value="{{ number_format($entry->price, 0, '', '') }}" required>
                                 </div>
 

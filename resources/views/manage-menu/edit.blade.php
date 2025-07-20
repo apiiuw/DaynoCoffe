@@ -33,7 +33,14 @@
                                             <option value="Manual Brew" {{ $menu->category == 'Manual Brew' ? 'selected' : '' }}>Manual Brew</option>
                                             <option value="Tea Based" {{ $menu->category == 'Tea Based' ? 'selected' : '' }}>Tea Based</option>
                                             <option value="Food" {{ $menu->category == 'Food' ? 'selected' : '' }}>Food</option>
+                                            <option value="Other" {{ !in_array($menu->category, ['Espresso Based', 'Milk Based', 'Manual Brew', 'Tea Based', 'Food']) ? 'selected' : '' }}>Lainnya</option>
                                         </select>
+                                    </div>
+
+                                    <!-- Inputan untuk kategori Other -->
+                                    <div class="form-group" id="other-category" style="{{ !in_array($menu->category, ['Espresso Based', 'Milk Based', 'Manual Brew', 'Tea Based', 'Food']) ? 'display: block;' : 'display: none;' }}">
+                                        <label for="other-category-input">Kategori Lainnya</label>
+                                        <input type="text" class="form-control" id="other-category-input" name="other_category" value="{{ !in_array($menu->category, ['Espresso Based', 'Milk Based', 'Manual Brew', 'Tea Based', 'Food']) ? $menu->category : '' }}" placeholder="Ketikkan kategori lain...">
                                     </div>
 
                                     <div class="form-group">
@@ -42,7 +49,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="price">Harga Menu</label>
+                                        <label for="price">Harga Satuan</label>
                                         <input type="text" class="form-control" id="price" name="price" value="Rp {{ number_format($menu->price, 0, ',', '.') }}" required>
                                     </div>
 
@@ -90,6 +97,28 @@
         rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
         return 'Rp ' + rupiah;
     }
+
+    // Menambahkan event listener untuk dropdown kategori
+    document.getElementById('category').addEventListener('change', function () {
+        const otherCategoryInput = document.getElementById('other-category');
+        const category = this.value;
+
+        if (category === 'Other') {
+            otherCategoryInput.style.display = 'block';  // Menampilkan input untuk kategori lain
+        } else {
+            otherCategoryInput.style.display = 'none';  // Menyembunyikan input untuk kategori lain
+        }
+    });
+
+    // Menyimpan kategori lain jika dipilih
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const categorySelect = document.getElementById('category');
+        const otherCategoryInput = document.getElementById('other-category-input');
+
+        if (categorySelect.value === 'Other' && otherCategoryInput.value) {
+            categorySelect.value = otherCategoryInput.value;  // Menyimpan input kategori lain ke kolom kategori
+        }
+    });
 </script>
 @endpush
 

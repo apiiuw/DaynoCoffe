@@ -31,7 +31,14 @@
                                             <option value="Bahan Baku" {{ $expanse->category == 'Bahan Baku' ? 'selected' : '' }}>Bahan Baku</option>
                                             <option value="Biaya Promosi" {{ $expanse->category == 'Biaya Promosi' ? 'selected' : '' }}>Biaya Promosi</option>
                                             <option value="Gaji Karyawan" {{ $expanse->category == 'Gaji Karyawan' ? 'selected' : '' }}>Gaji Karyawan</option>
+                                            <option value="Other" {{ $expanse->category != 'Bahan Baku' && $expanse->category != 'Biaya Promosi' && $expanse->category != 'Gaji Karyawan' ? 'selected' : '' }}>Lainnya</option>
                                         </select>
+                                    </div>
+
+                                    <!-- Inputan untuk kategori Other -->
+                                    <div class="form-group" id="other-category" style="{{ $expanse->category != 'Bahan Baku' && $expanse->category != 'Biaya Promosi' && $expanse->category != 'Gaji Karyawan' ? 'display: block;' : 'display: none;' }}">
+                                        <label for="other-category-input">Kategori Lainnya</label>
+                                        <input type="text" class="form-control" id="other-category-input" name="other_category" value="{{ $expanse->category != 'Bahan Baku' && $expanse->category != 'Biaya Promosi' && $expanse->category != 'Gaji Karyawan' ? $expanse->category : '' }}" placeholder="Ketikkan kategori lain...">
                                     </div>
 
                                     <div class="form-group">
@@ -40,7 +47,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="price">Harga</label>
+                                        <label for="price">Harga Satuan</label>
                                         <input type="text" class="form-control" name="price" id="price" value="Rp {{ number_format($expanse->price, 0, ',', '.') }}" required>
                                     </div>
 
@@ -84,6 +91,18 @@
         rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
         return 'Rp ' + rupiah;
     }
+
+    // Menambahkan event listener untuk dropdown kategori
+    document.getElementById('category').addEventListener('change', function () {
+        const otherCategoryInput = document.getElementById('other-category');
+        const category = this.value;
+
+        if (category === 'Other') {
+            otherCategoryInput.style.display = 'block';  // Menampilkan input untuk kategori lain
+        } else {
+            otherCategoryInput.style.display = 'none';  // Menyembunyikan input untuk kategori lain
+        }
+    });
 </script>
 @endpush
 

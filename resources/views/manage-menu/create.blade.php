@@ -31,15 +31,23 @@
                                             <option value="Manual Brew">Manual Brew</option>
                                             <option value="Tea Based">Tea Based</option>
                                             <option value="Food">Food</option>
+                                            <option value="Other">Lainnya</option>
                                         </select>
                                     </div>
+
+                                    <!-- Inputan untuk kategori Other -->
+                                    <div class="form-group" id="other-category" style="display: none;">
+                                        <label for="other-category-input">Kategori Lainnya</label>
+                                        <input type="text" class="form-control" id="other-category-input" name="other_category" placeholder="Ketikkan kategori lain...">
+                                    </div>
+
                                     <div class="form-group">
                                         <label for="menu">Nama Menu</label>
-                                        <input type="text" class="form-control" name="menu" required>
+                                        <input type="text" class="form-control" name="menu" placeholder="Ketikkan nama menu..." required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="price">Harga Menu</label>
-                                        <input type="text" class="form-control" id="price" name="price" required>
+                                        <label for="price">Harga Satuan</label>
+                                        <input type="text" class="form-control" id="price" name="price" placeholder="Ketikkan harga satuan..." required>
                                     </div>
                                     <button type="submit" class="btn btn-primary">Simpan</button>
                                     <a href="{{ route('manage-menu.index') }}" class="btn btn-danger">Kembali</a>
@@ -76,6 +84,28 @@
         rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
         return 'Rp ' + rupiah;
     }
+
+    // Menambahkan event listener untuk dropdown kategori
+    document.getElementById('category').addEventListener('change', function () {
+        const otherCategoryInput = document.getElementById('other-category');
+        const category = this.value;
+
+        if (category === 'Other') {
+            otherCategoryInput.style.display = 'block';  // Menampilkan input untuk kategori lain
+        } else {
+            otherCategoryInput.style.display = 'none';  // Menyembunyikan input untuk kategori lain
+        }
+    });
+
+    // Menyimpan kategori lain jika dipilih
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const categorySelect = document.getElementById('category');
+        const otherCategoryInput = document.getElementById('other-category-input');
+
+        if (categorySelect.value === 'Other' && otherCategoryInput.value) {
+            categorySelect.value = otherCategoryInput.value;  // Menyimpan input kategori lain ke kolom kategori
+        }
+    });
 </script>
 @endpush
 

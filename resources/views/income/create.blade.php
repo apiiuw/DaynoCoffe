@@ -105,7 +105,7 @@
 
                 <!-- Harga -->
                 <div class="form-group price-group">
-                    <label for="price">Harga</label>
+                    <label for="price">Harga Satuan</label>
                     <input type="number" class="form-control price" name="price[]" required>
                 </div>
 
