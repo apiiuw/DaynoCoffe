@@ -82,7 +82,7 @@
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Setel Periode</button>
-                    <a href="{{ route('index.income') }}" class="btn btn-secondary ml-2">Reset Periode</a>
+                    <a href="{{ route('dashboard.owner') }}" class="btn btn-secondary ml-2">Reset Periode</a>
                 </form>
                 <div class="row">
                     <div class="col-lg-3">

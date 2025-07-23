@@ -34,7 +34,7 @@
                                             <th>Menu</th>
                                             <th>Harga Satuan</th>
                                             <th>Ketersediaan</th>
-                                            <th>Aksi</th>
+                                            {{-- <th>Aksi</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -45,7 +45,7 @@
                                                 <td>{{ $menu->menu }}</td>
                                                 <td>Rp {{ number_format($menu->price, 0, ',', '.') }}</td>
                                                 <td>{{ $menu->availability }}</td>
-                                                <td>
+                                                {{-- <td>
                                                     <a href="{{ route('manage-menu.edit', $menu->id) }}" class="btn btn-warning btn-sm">Edit</a>
 
                                                     <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $menu->id }})">Delete</button>
@@ -54,7 +54,7 @@
                                                         @csrf
                                                         @method('DELETE')
                                                     </form>
-                                                </td>
+                                                </td> --}}
                                             </tr>
                                         @empty
                                             <tr>

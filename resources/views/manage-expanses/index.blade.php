@@ -25,7 +25,7 @@
                                 <th>Item</th>
                                 <th>Harga Satuan</th>
                                 <th>Keterangan</th>
-                                <th>Aksi</th>
+                                {{-- <th>Aksi</th> --}}
                             </tr>
                         </thead>
                         <tbody>
@@ -36,7 +36,7 @@
                                     <td>{{ $item->item }}</td>
                                     <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
                                     <td>{{ $item->keterangan }}</td>
-                                    <td>
+                                    {{-- <td>
                                         <a href="{{ route('manage-expanses.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                         
                                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $item->id }})">Hapus</button>
@@ -45,7 +45,7 @@
                                             @csrf
                                             @method('DELETE')
                                         </form>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                             @empty
                                 <tr>
