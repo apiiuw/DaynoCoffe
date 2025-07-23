@@ -13,105 +13,116 @@ use Illuminate\Pagination\LengthAwarePaginator;
  
 class IncomeController extends Controller
 {
-    public function index(Request $request)
-    {
-            $user = Auth::user();
-            $menus = Menu::all();
+public function index(Request $request)
+{
+    $user = Auth::user();
+    $menus = Menu::all();
 
-        $sortField = $request->query('field', 'date');
-        $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
-        $validSortFields = ['date', 'amount'];
-        if (!in_array($sortField, $validSortFields)) {
-            $sortField = 'date';
-        }
-
-        $kasirIds = collect();
-        $query = Income::query();
-
-        if ($user->role === 'kasir') {
-            $query->where('user_id', $user->id);
-        } elseif ($user->role === 'owner') {
-            $kasirIds = User::where('role', 'kasir')->pluck('id');
-            $query->whereIn('user_id', $kasirIds);
-        }
-
-        if ($request->filled('month')) {
-            $query->whereMonth('date', $request->month);
-        }
-        if ($request->filled('year')) {
-            $query->whereYear('date', $request->year);
-        }
-
-        $rawData = $query->orderBy($sortField, $sortDirection)->get();
-        $grouped = $rawData->groupBy('id_incomes');
-        $groupedKeys = $grouped->keys();
-
-        $page = $request->get('page', 1);
-        $perPage = 10;
-
-        $offset = ($page - 1) * $perPage;
-        $pagedGroupKeys = $groupedKeys->slice($offset, $perPage);
-
-        // Ambil hanya grup yang masuk halaman ini
-        $incomesGrouped = $pagedGroupKeys->mapWithKeys(function ($key) use ($grouped) {
-            return [$key => $grouped[$key]];
-        });
-
-
-        $incomes = new LengthAwarePaginator(
-            $incomesGrouped->flatten(1),
-            $grouped->count(),
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
-
-        $totalIncomePerGroup = $incomesGrouped->map(fn($group) => $group->sum('total_price'));
-        $totalIncome = $totalIncomePerGroup->sum();
-
-        $monthlyIncomes = $rawData->groupBy(fn($i) => Carbon::parse($i->date)->format('F'));
-        $monthlyData = $monthlyIncomes->map(fn($group) => $group->groupBy('id_incomes')->map(fn($g) => $g->sum('total_price'))->sum())->values()->toArray();
-        $months = $monthlyIncomes->keys()->toArray();
-
-        $dailyIncomes = $rawData->groupBy(fn($i) => Carbon::parse($i->date)->format('Y-m-d'));
-        $dailyData = $dailyIncomes->map(fn($group) => $group->groupBy('id_incomes')->map(fn($g) => $g->sum('total_price'))->sum());
-        $daily = [
-            'labels' => $dailyData->keys()->toArray(),
-            'values' => $dailyData->values()->toArray(),
-        ];
-
-        $groupedById = $rawData->groupBy('id_incomes');
-        $categorySums = $groupedById->flatMap(fn($group) => $group->groupBy('category')->map(fn($items, $category) => [
-            'category' => $category,
-            'total' => $items->sum('total_price')
-        ]));
-        $groupedByCategory = $categorySums->groupBy('category')->map(fn($items) => collect($items)->sum('total'));
-        $categoryData = [
-            'labels' => $groupedByCategory->keys()->values(),
-            'data' => $groupedByCategory->values()
-        ];
-
-        $availableYears = Income::selectRaw('YEAR(date) as year')
-            ->when($user->role === 'kasir', fn($q) => $q->where('user_id', $user->id))
-            ->when($user->role === 'owner', fn($q) => $q->whereIn('user_id', $kasirIds))
-            ->distinct()
-            ->orderByDesc('year')
-            ->pluck('year');
-
-        return view('income.index', compact(
-            'incomes',
-            'incomesGrouped',
-            'totalIncome',
-            'totalIncomePerGroup',
-            'monthlyData',
-            'dailyData',
-            'daily',
-            'categoryData',
-            'months',
-            'availableYears',
-            'menus'
-        ));
+    $sortField = $request->query('field', 'date');
+    $sortDirection = $request->query('sort', 'asc') === 'asc' ? 'asc' : 'desc';
+    $validSortFields = ['date', 'amount'];
+    if (!in_array($sortField, $validSortFields)) {
+        $sortField = 'date';
     }
+
+    $kasirIds = collect();
+    $query = Income::query();
+
+    if ($user->role === 'kasir') {
+        $query->where('user_id', $user->id);
+    } elseif ($user->role === 'owner') {
+        $kasirIds = User::where('role', 'kasir')->pluck('id');
+        $query->whereIn('user_id', $kasirIds);
+    }
+
+    // Filter berdasarkan hari, bulan, dan tahun
+    if ($request->filled('day')) {
+        $query->whereDay('date', $request->day); // Filter berdasarkan hari
+    }
+
+    if ($request->filled('month')) {
+        $query->whereMonth('date', $request->month); // Filter berdasarkan bulan
+    }
+
+    if ($request->filled('year')) {
+        $query->whereYear('date', $request->year); // Filter berdasarkan tahun
+    }
+
+    // Jika tidak ada filter hari, bulan, atau tahun, tampilkan data hari ini
+    if (!$request->filled('day') && !$request->filled('month') && !$request->filled('year')) {
+        $query->whereDate('date', Carbon::today());
+    }
+
+    $rawData = $query->orderBy($sortField, $sortDirection)->get();
+    $grouped = $rawData->groupBy('id_incomes');
+    $groupedKeys = $grouped->keys();
+
+    $page = $request->get('page', 1);
+    $perPage = 10;
+
+    $offset = ($page - 1) * $perPage;
+    $pagedGroupKeys = $groupedKeys->slice($offset, $perPage);
+
+    // Ambil hanya grup yang masuk halaman ini
+    $incomesGrouped = $pagedGroupKeys->mapWithKeys(function ($key) use ($grouped) {
+        return [$key => $grouped[$key]];
+    });
+
+    $incomes = new LengthAwarePaginator(
+        $incomesGrouped->flatten(1),
+        $grouped->count(),
+        $perPage,
+        $page,
+        ['path' => $request->url(), 'query' => $request->query()]
+    );
+
+    $totalIncomePerGroup = $incomesGrouped->map(fn($group) => $group->sum('total_price'));
+    $totalIncome = $totalIncomePerGroup->sum();
+
+    $monthlyIncomes = $rawData->groupBy(fn($i) => Carbon::parse($i->date)->format('F'));
+    $monthlyData = $monthlyIncomes->map(fn($group) => $group->groupBy('id_incomes')->map(fn($g) => $g->sum('total_price'))->sum())->values()->toArray();
+    $months = $monthlyIncomes->keys()->toArray();
+
+    $dailyIncomes = $rawData->groupBy(fn($i) => Carbon::parse($i->date)->format('Y-m-d'));
+    $dailyData = $dailyIncomes->map(fn($group) => $group->groupBy('id_incomes')->map(fn($g) => $g->sum('total_price'))->sum());
+    $daily = [
+        'labels' => $dailyData->keys()->toArray(),
+        'values' => $dailyData->values()->toArray(),
+    ];
+
+    $groupedById = $rawData->groupBy('id_incomes');
+    $categorySums = $groupedById->flatMap(fn($group) => $group->groupBy('category')->map(fn($items, $category) => [
+        'category' => $category,
+        'total' => $items->sum('total_price')
+    ]));
+    $groupedByCategory = $categorySums->groupBy('category')->map(fn($items) => collect($items)->sum('total'));
+    $categoryData = [
+        'labels' => $groupedByCategory->keys()->values(),
+        'data' => $groupedByCategory->values()
+    ];
+
+    $availableYears = Income::selectRaw('YEAR(date) as year')
+        ->when($user->role === 'kasir', fn($q) => $q->where('user_id', $user->id))
+        ->when($user->role === 'owner', fn($q) => $q->whereIn('user_id', $kasirIds))
+        ->distinct()
+        ->orderByDesc('year')
+        ->pluck('year');
+
+    return view('income.index', compact(
+        'incomes',
+        'incomesGrouped',
+        'totalIncome',
+        'totalIncomePerGroup',
+        'monthlyData',
+        'dailyData',
+        'daily',
+        'categoryData',
+        'months',
+        'availableYears',
+        'menus'
+    ));
+}
+
 
     public function create()
     {

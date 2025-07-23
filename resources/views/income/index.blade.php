@@ -21,11 +21,22 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="text-right">
-                                    <a href="{{ route('create.income') }}" class="btn btn-success">Tambah Pemasukan</a>
+                                    @if (!(request('month') || request('year')))
+                                        <a href="{{ route('create.income') }}" class="btn btn-success">Tambah Pemasukan</a>
+                                    @endif
                                 </div>
                             </div>
                             <div class="card-body">
                                 <form method="GET" action="{{ route('index.income') }}" class="form-inline mb-3">
+                                    <div class="form-group mr-2">
+                                        <label for="day" class="mr-2">Hari</label>
+                                        <select name="day" id="day" class="form-control">
+                                            <option value="">-- Semua --</option>
+                                            @for ($d = 1; $d <= 31; $d++)
+                                                <option value="{{ $d }}" {{ request('day') == $d ? 'selected' : '' }}>{{ $d }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
                                     <div class="form-group mr-2">
                                         <label for="month" class="mr-2">Bulan</label>
                                         <select name="month" id="month" class="form-control">
@@ -44,8 +55,8 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Filter</button>
-                                    <a href="{{ route('index.income') }}" class="btn btn-secondary ml-2">Reset</a>
+                                    <button type="submit" class="btn btn-primary">Setel Periode</button>
+                                    <a href="{{ route('index.income') }}" class="btn btn-secondary ml-2">Reset Periode</a>
                                 </form>
 
                                 <table class="table table-bordered">
@@ -86,7 +97,7 @@
                                                     @endif
                                                 </a>
                                             </th>
-                                            <th>Aksi</th>
+                                            {{-- <th>Aksi</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -131,9 +142,9 @@
                                                     <!-- Kolom Total Harga dan Aksi hanya ditampilkan di baris pertama -->
                                                     @if ($loop->first)
                                                         <td rowspan="{{ $groupedIncomes->count() }}">Rp {{ number_format($firstIncome->amount, 0, ',', '.') }}</td>
-                                                        <td rowspan="{{ $groupedIncomes->count() }}">
+                                                        {{-- <td rowspan="{{ $groupedIncomes->count() }}">
                                                             <a href="{{ route('edit.income', $firstIncome->id_incomes) }}" class="btn btn-warning btn-sm">Edit</a>
-                                                        </td>
+                                                        </td> --}}
                                                     @endif
                                                 </tr>
                                             @endforeach
