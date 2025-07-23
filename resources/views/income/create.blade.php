@@ -29,12 +29,16 @@
                     <form method="POST" action="{{ route('store.income') }}">
                         @csrf
                         
-                        <!-- Tanggal Form - Fixed at the top -->
                         <div class="card order-card">
+                            @php
+                                $now = \Carbon\Carbon::now('Asia/Jakarta');
+                                $startOfMonth = $now->copy()->startOfMonth()->format('Y-m-d');
+                                $endOfMonth = $now->copy()->endOfMonth()->format('Y-m-d');
+                            @endphp
                             <div class="card-body">
                                 <div class="form-group">
                                     <label for="date">Tanggal</label>
-                                    <input type="date" class="form-control" name="date[]" value="{{ now()->setTimezone('Asia/Jakarta')->format('Y-m-d') }}" required>
+                                    <input type="date" class="form-control" name="date[]" min="{{ $startOfMonth }}" max="{{ $endOfMonth }}"  value="{{ now()->setTimezone('Asia/Jakarta')->format('Y-m-d') }}" required>
                                 </div>
                             </div>
                         </div>
