@@ -21,15 +21,26 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="text-right">
-                                    <a href="{{ route('create.expense') }}" class="btn btn-success">Tambah Pengeluaran</a>
+                                    @if (!(request('month') || request('year') || request('day')))
+                                        <a href="{{ route('create.expense') }}" class="btn btn-success">Tambah Pengeluaran</a>
+                                    @endif
                                 </div>
                             </div>
                             <div class="card-body">
                                 <form method="GET" action="{{ route('index.expense') }}" class="form-inline mb-3">
                                     <div class="form-group mr-2">
+                                        <label for="day" class="mr-2">Hari</label>
+                                        <select name="day" id="day" class="form-control">
+                                            <option value="">Belum disetel</option>
+                                            @for ($d = 1; $d <= 31; $d++)
+                                                <option value="{{ $d }}" {{ request('day') == $d ? 'selected' : '' }}>{{ $d }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <div class="form-group mr-2">
                                         <label for="month" class="mr-2">Bulan</label>
                                         <select name="month" id="month" class="form-control">
-                                            <option value="">-- Semua --</option>
+                                            <option value="">Belum disetel</option>
                                             @for ($m = 1; $m <= 12; $m++)
                                                 <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
                                             @endfor
@@ -38,14 +49,14 @@
                                     <div class="form-group mr-2">
                                         <label for="year" class="mr-2">Tahun</label>
                                         <select name="year" id="year" class="form-control">
-                                            <option value="">-- Semua --</option>
+                                            <option value="">Belum disetel</option>
                                             @foreach ($availableYears as $year)
                                                 <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <button type="submit" class="btn btn-danger">Filter</button>
-                                    <a href="{{ route('index.income') }}" class="btn btn-secondary ml-2">Reset</a>
+                                    <button type="submit" class="btn btn-danger">Setel Periode</button>
+                                    <a href="{{ route('index.expense') }}" class="btn btn-secondary ml-2">Reset Periode</a>
                                 </form>
 
                                 <table class="table table-bordered">
@@ -86,7 +97,7 @@
                                                     @endif
                                                 </a>
                                             </th>
-                                            <th>Aksi</th>
+                                            {{-- <th>Aksi</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -131,10 +142,9 @@
                                                     <!-- Kolom Total Harga dan Aksi hanya ditampilkan di baris pertama -->
                                                     @if ($loop->first)
                                                         <td rowspan="{{ $groupedExpenses->count() }}">Rp {{ number_format($firstExpenses->amount, 0, ',', '.') }}</td>
-                                                        <td rowspan="{{ $groupedExpenses->count() }}">
-
+                                                        {{-- <td rowspan="{{ $groupedExpenses->count() }}">
                                                             <a href="{{ route('edit.expense', $firstExpenses->id_expenses) }}" class="btn btn-warning btn-sm">Edit</a>
-                                                        </td>
+                                                        </td> --}}
                                                     @endif
                                                 </tr>
                                             @endforeach

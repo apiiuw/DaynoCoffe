@@ -34,7 +34,7 @@
                             <div class="card-body">
                                 <div class="form-group">
                                     <label for="date">Tanggal</label>
-                                    <input type="date" class="form-control" name="date[]" value="{{ now()->setTimezone('Asia/Jakarta')->format('Y-m-d') }}" readonly required>
+                                    <input type="date" class="form-control" name="date[]" value="{{ now()->setTimezone('Asia/Jakarta')->format('Y-m-d') }}" required>
                                 </div>
                             </div>
                         </div>

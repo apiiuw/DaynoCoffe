@@ -98,7 +98,7 @@ class ExpenseController extends Controller
         }
 
         $managerIds = collect();
-        $query = expense::query();
+        $query = Expense::query();
 
         if ($user->role === 'manager') {
             $query->where('user_id', $user->id);
@@ -107,19 +107,30 @@ class ExpenseController extends Controller
             $query->whereIn('user_id', $managerIds);
         }
 
-        if ($request->filled('month')) {
-            $query->whereMonth('date', $request->month);
+        // Filter berdasarkan hari, bulan, dan tahun
+        if ($request->filled('day')) {
+            $query->whereDay('date', $request->day); // Filter berdasarkan hari
         }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month); // Filter berdasarkan bulan
+        }
+
         if ($request->filled('year')) {
-            $query->whereYear('date', $request->year);
+            $query->whereYear('date', $request->year); // Filter berdasarkan tahun
+        }
+
+        // Jika tidak ada filter hari, bulan, atau tahun, tampilkan data hari ini
+        if (!$request->filled('day') && !$request->filled('month') && !$request->filled('year')) {
+            $query->whereDate('date', Carbon::today());
         }
 
         $perPage = 10;
 
-        // Use paginate here with $perPage
+        // Paginate dengan $perPage
         $rawData = $query->orderBy($sortField, $sortDirection)->paginate($perPage);
 
-        // Group data for display
+        // Group data untuk ditampilkan
         $expensesGrouped = $rawData->getCollection()->groupBy('id_expenses');
         $groupedKeys = $expensesGrouped->keys();
 
@@ -130,17 +141,17 @@ class ExpenseController extends Controller
         $monthlyData = $monthlyExpenses->map(fn($group) => $group->groupBy('id_expenses')->map(fn($g) => $g->sum('total_price'))->sum())->values()->toArray();
         $months = $monthlyExpenses->keys()->toArray();
 
-        // Calculate daily expenses
+        // Hitung pengeluaran harian
         $dailyExpenses = $rawData->getCollection()->groupBy(fn($i) => Carbon::parse($i->date)->format('Y-m-d'));
         $dailyData = $dailyExpenses->map(fn($group) => $group->groupBy('id_expenses')->map(fn($g) => $g->sum('total_price'))->sum());
 
-        // Format daily data
+        // Format data harian
         $daily = [
             'labels' => $dailyData->keys()->toArray(),
             'values' => $dailyData->values()->toArray(),
         ];
 
-        $availableYears = expense::selectRaw('YEAR(date) as year')
+        $availableYears = Expense::selectRaw('YEAR(date) as year')
             ->when($user->role === 'manager', fn($q) => $q->where('user_id', $user->id))
             ->when($user->role === 'owner', fn($q) => $q->whereIn('user_id', $managerIds))
             ->distinct()
@@ -148,13 +159,13 @@ class ExpenseController extends Controller
             ->pluck('year');
 
         return view('expense.index', compact(
-            'rawData',  // Paginated data
-            'expensesGrouped', // Grouped expenses data
+            'rawData',  // Data yang dipaginasi
+            'expensesGrouped', // Data pengeluaran yang dikelompokkan
             'totalExpenses',
             'totalExpensesPerGroup',
             'monthlyData',
             'months',
-            'daily',  // Pass the daily data to view
+            'daily',  // Kirim data harian ke view
             'availableYears',
             'items'
         ));

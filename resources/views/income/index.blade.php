@@ -21,7 +21,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="text-right">
-                                    @if (!(request('month') || request('year')))
+                                    @if (!(request('month') || request('year') || request('day')))
                                         <a href="{{ route('create.income') }}" class="btn btn-success">Tambah Pemasukan</a>
                                     @endif
                                 </div>
@@ -31,7 +31,7 @@
                                     <div class="form-group mr-2">
                                         <label for="day" class="mr-2">Hari</label>
                                         <select name="day" id="day" class="form-control">
-                                            <option value="">-- Semua --</option>
+                                            <option value="">Belum disetel</option>
                                             @for ($d = 1; $d <= 31; $d++)
                                                 <option value="{{ $d }}" {{ request('day') == $d ? 'selected' : '' }}>{{ $d }}</option>
                                             @endfor
@@ -40,7 +40,7 @@
                                     <div class="form-group mr-2">
                                         <label for="month" class="mr-2">Bulan</label>
                                         <select name="month" id="month" class="form-control">
-                                            <option value="">-- Semua --</option>
+                                            <option value="">Belum disetel</option>
                                             @for ($m = 1; $m <= 12; $m++)
                                                 <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
                                             @endfor
@@ -49,7 +49,7 @@
                                     <div class="form-group mr-2">
                                         <label for="year" class="mr-2">Tahun</label>
                                         <select name="year" id="year" class="form-control">
-                                            <option value="">-- Semua --</option>
+                                            <option value="">Belum disetel</option>
                                             @foreach ($availableYears as $year)
                                                 <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
                                             @endforeach
