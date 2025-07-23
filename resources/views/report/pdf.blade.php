@@ -56,5 +56,17 @@
             </tr>
         </tfoot>
     </table>
+    <br><br>
+    <table>
+        <tr>
+            <th>Keuntungan (Rp)</th>
+            <td>{{ number_format($profit, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <th>Kerugian (Rp)</th>
+            <td>{{ number_format($loss, 0, ',', '.') }}</td>
+        </tr>
+    </table>
+
 </body>
 </html>

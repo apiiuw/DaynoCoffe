@@ -53,7 +53,21 @@
                                         <th>{{ number_format($totalBill, 0, ',', '.') }}</th>
                                     </tr>
                                 </tfoot>
-                            </table><br>
+                                <hr>
+                            </table>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="alert alert-success">
+                                        <strong>Keuntungan:</strong> Rp {{ number_format($profit, 0, ',', '.') }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-danger">
+                                        <strong>Kerugian:</strong> Rp {{ number_format($loss, 0, ',', '.') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
                             <a href="{{ route('report.pdf') }}" class="btn btn-primary"><i class="fas fa-print"></i>  Cetak Laporan</a>
                             </div>
                         </div>
