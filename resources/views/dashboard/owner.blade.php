@@ -53,6 +53,37 @@
 
         <div class="content">
             <div class="container-fluid">
+                <form method="GET" action="{{ route('dashboard.owner') }}" class="form-inline mb-3">
+                    <div class="form-group mr-2">
+                        <label for="day" class="mr-2">Hari</label>
+                        <select name="day" id="day" class="form-control">
+                            <option value="">Belum disetel</option>
+                            @for ($d = 1; $d <= 31; $d++)
+                                <option value="{{ $d }}" {{ request('day') == $d ? 'selected' : '' }}>{{ $d }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <label for="month" class="mr-2">Bulan</label>
+                        <select name="month" id="month" class="form-control">
+                            <option value="">Belum disetel</option>
+                            @for ($m = 1; $m <= 12; $m++)
+                                <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <label for="year" class="mr-2">Tahun</label>
+                        <select name="year" id="year" class="form-control">
+                            <option value="">Belum disetel</option>
+                            @foreach ($availableYears as $year)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Setel Periode</button>
+                    <a href="{{ route('index.income') }}" class="btn btn-secondary ml-2">Reset Periode</a>
+                </form>
                 <div class="row">
                     <div class="col-lg-3">
                         <div class="card bg-info">
