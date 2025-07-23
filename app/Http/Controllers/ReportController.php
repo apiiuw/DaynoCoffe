@@ -12,26 +12,50 @@ use PDF;
 
 class ReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua data tanpa filter user_id
-        $incomeData = Income::all()->groupBy(function ($item) {
+        $selectedMonth = $request->input('month');
+        $selectedYear = $request->input('year');
+
+        // Mulai query builder untuk semua tabel
+        $incomeQuery = Income::query();
+        $expenseQuery = Expense::query();
+        $debtQuery = Debt::query();
+        $billQuery = Bill::query();
+
+        // Terapkan filter bulan dan tahun jika disetel
+        if ($selectedYear) {
+            $incomeQuery->whereYear('date', $selectedYear);
+            $expenseQuery->whereYear('date', $selectedYear);
+            $debtQuery->whereYear('date', $selectedYear);
+            $billQuery->whereYear('date', $selectedYear);
+        }
+
+        if ($selectedMonth) {
+            $incomeQuery->whereMonth('date', $selectedMonth);
+            $expenseQuery->whereMonth('date', $selectedMonth);
+            $debtQuery->whereMonth('date', $selectedMonth);
+            $billQuery->whereMonth('date', $selectedMonth);
+        }
+
+        // Ambil data yang sudah difilter
+        $incomeData = $incomeQuery->get()->groupBy(function ($item) {
             return Carbon::parse($item->date)->format('Y-m');
         });
 
-        $expenseData = Expense::all()->groupBy(function ($item) {
+        $expenseData = $expenseQuery->get()->groupBy(function ($item) {
             return Carbon::parse($item->date)->format('Y-m');
         });
 
-        $debtData = Debt::all()->groupBy(function ($item) {
+        $debtData = $debtQuery->get()->groupBy(function ($item) {
             return Carbon::parse($item->date)->format('Y-m');
         });
 
-        $billData = Bill::all()->groupBy(function ($item) {
+        $billData = $billQuery->get()->groupBy(function ($item) {
             return Carbon::parse($item->date)->format('Y-m');
         });
 
-        // Gabungkan semua bulan unik dari keempat sumber
+        // Gabungkan semua bulan unik
         $allMonths = array_unique(array_merge(
             $incomeData->keys()->toArray(),
             $expenseData->keys()->toArray(),
@@ -43,21 +67,14 @@ class ReportController extends Controller
         $totalIncome = $totalExpense = $totalDebt = $totalBill = 0;
 
         foreach ($allMonths as $month) {
-            // Ambil data income untuk bulan tersebut
             $incomesInMonth = $incomeData->get($month, collect());
-
-            // Kelompokkan per id_incomes yang unik dan ambil jumlah unik amount per id_incomes
             $groupedByIdIncomes = $incomesInMonth->groupBy('id_incomes');
             $incomeSum = $groupedByIdIncomes->map(fn($group) => $group->first()->amount)->sum();
 
-            // Ambil data Expense untuk bulan tersebut
             $expensesInMonth = $expenseData->get($month, collect());
-
-            // Kelompokkan per id_incomes yang unik dan ambil jumlah unik amount per id_incomes
             $groupedByIdExpenses = $expensesInMonth->groupBy('id_expenses');
             $expenseSum = $groupedByIdExpenses->map(fn($group) => $group->first()->amount)->sum();
 
-            // Data untuk hutang dan tagihan
             $debtSum = $debtData->get($month, collect())->sum('amount');
             $billSum = $billData->get($month, collect())->sum('amount');
 
@@ -76,36 +93,54 @@ class ReportController extends Controller
 
         ksort($reportData);
 
-        // Hitung selisih pemasukan dan pengeluaran
         $profitOrLoss = $totalIncome - $totalExpense;
-
-        // Tentukan keuntungan dan kerugian
         $profit = $profitOrLoss > 0 ? $profitOrLoss : 0;
         $loss   = $profitOrLoss < 0 ? abs($profitOrLoss) : 0;
 
-        return view('report.index', compact('reportData', 'totalIncome', 'totalExpense', 'totalDebt', 'totalBill', 'profit', 'loss'));
+        // Ambil daftar tahun unik untuk pilihan tahun di view
+        $availableYears = Income::selectRaw('YEAR(date) as year')->distinct()->pluck('year')->sortDesc();
+
+        return view('report.index', compact(
+            'reportData',
+            'totalIncome',
+            'totalExpense',
+            'totalDebt',
+            'totalBill',
+            'profit',
+            'loss',
+            'availableYears'
+        ));
     }
- 
-    public function downloadPDF()
+
+    public function downloadPDF(Request $request)
     {
-        // Ambil semua data tanpa filter user_id
-        $incomeData = Income::all()->groupBy(function ($item) {
-            return Carbon::parse($item->date)->format('Y-m');
-        });
+        $selectedMonth = $request->input('month');
+        $selectedYear = $request->input('year');
 
-        $expenseData = Expense::all()->groupBy(function ($item) {
-            return Carbon::parse($item->date)->format('Y-m');
-        });
+        $incomeQuery = Income::query();
+        $expenseQuery = Expense::query();
+        $debtQuery = Debt::query();
+        $billQuery = Bill::query();
 
-        $debtData = Debt::all()->groupBy(function ($item) {
-            return Carbon::parse($item->date)->format('Y-m');
-        });
+        if ($selectedYear) {
+            $incomeQuery->whereYear('date', $selectedYear);
+            $expenseQuery->whereYear('date', $selectedYear);
+            $debtQuery->whereYear('date', $selectedYear);
+            $billQuery->whereYear('date', $selectedYear);
+        }
 
-        $billData = Bill::all()->groupBy(function ($item) {
-            return Carbon::parse($item->date)->format('Y-m');
-        });
+        if ($selectedMonth) {
+            $incomeQuery->whereMonth('date', $selectedMonth);
+            $expenseQuery->whereMonth('date', $selectedMonth);
+            $debtQuery->whereMonth('date', $selectedMonth);
+            $billQuery->whereMonth('date', $selectedMonth);
+        }
 
-        // Gabungkan semua bulan unik dari keempat sumber
+        $incomeData = $incomeQuery->get()->groupBy(fn($item) => Carbon::parse($item->date)->format('Y-m'));
+        $expenseData = $expenseQuery->get()->groupBy(fn($item) => Carbon::parse($item->date)->format('Y-m'));
+        $debtData = $debtQuery->get()->groupBy(fn($item) => Carbon::parse($item->date)->format('Y-m'));
+        $billData = $billQuery->get()->groupBy(fn($item) => Carbon::parse($item->date)->format('Y-m'));
+
         $allMonths = array_unique(array_merge(
             $incomeData->keys()->toArray(),
             $expenseData->keys()->toArray(),
@@ -117,21 +152,14 @@ class ReportController extends Controller
         $totalIncome = $totalExpense = $totalDebt = $totalBill = 0;
 
         foreach ($allMonths as $month) {
-            // Ambil data income untuk bulan tersebut
             $incomesInMonth = $incomeData->get($month, collect());
-
-            // Kelompokkan per id_incomes yang unik dan ambil jumlah unik amount per id_incomes
             $groupedByIdIncomes = $incomesInMonth->groupBy('id_incomes');
             $incomeSum = $groupedByIdIncomes->map(fn($group) => $group->first()->amount)->sum();
 
-            // Ambil data Expense untuk bulan tersebut
             $expensesInMonth = $expenseData->get($month, collect());
-
-            // Kelompokkan per id_incomes yang unik dan ambil jumlah unik amount per id_incomes
             $groupedByIdExpenses = $expensesInMonth->groupBy('id_expenses');
             $expenseSum = $groupedByIdExpenses->map(fn($group) => $group->first()->amount)->sum();
 
-            // Data untuk hutang dan tagihan
             $debtSum = $debtData->get($month, collect())->sum('amount');
             $billSum = $billData->get($month, collect())->sum('amount');
 
@@ -149,15 +177,20 @@ class ReportController extends Controller
         }
 
         ksort($reportData);
-        $currentDateTime = Carbon::now()->format('d F Y H:i');
 
+        $currentDateTime = Carbon::now()->format('d F Y H:i');
         $profitOrLoss = $totalIncome - $totalExpense;
         $profit = $profitOrLoss > 0 ? $profitOrLoss : 0;
         $loss = $profitOrLoss < 0 ? abs($profitOrLoss) : 0;
 
-        $pdf = PDF::loadView('report.pdf', compact('reportData', 'totalIncome', 'totalExpense', 'totalDebt', 'totalBill', 'currentDateTime', 'profit', 'loss'));
+        $pdf = PDF::loadView('report.pdf', compact(
+            'reportData', 'totalIncome', 'totalExpense', 'totalDebt',
+            'totalBill', 'currentDateTime', 'profit', 'loss',
+            'selectedMonth', 'selectedYear' 
+        ));
 
         return $pdf->download('laporan_keuangan.pdf');
     }
+
 
 }

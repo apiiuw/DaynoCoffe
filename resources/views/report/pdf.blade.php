@@ -24,7 +24,23 @@
 </head>
 <body>
     <h1>Laporan Keuangan</h1>
-    <p>Tanggal & Waktu : {{ $currentDateTime }}</p>
+    <p>Tanggal & Waktu Cetak : {{ $currentDateTime }}</p>
+    @php
+        use Carbon\Carbon;
+
+        $periode = '-';
+
+        if (!empty($selectedYear) && !empty($selectedMonth)) {
+            try {
+                $periode = Carbon::createFromFormat('Y-m', $selectedYear . '-' . str_pad($selectedMonth, 2, '0', STR_PAD_LEFT))
+                            ->locale('id')->translatedFormat('F Y');
+            } catch (\Exception $e) {
+                $periode = '-';
+            }
+        }
+    @endphp
+    <p>Periode: {{ $periode }}</p>
+
     <table>
         <thead>
             <tr>
@@ -38,7 +54,7 @@
         <tbody>
             @foreach($reportData as $month => $data)
                 <tr>
-                    <td>{{ Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y') }}</td>
+                    <td>{{ Carbon::createFromFormat('Y-m', $month)->locale('id')->translatedFormat('F Y') }}</td>
                     <td>{{ number_format($data['income'], 0, ',', '.') }}</td>
                     <td>{{ number_format($data['expense'], 0, ',', '.') }}</td>
                     <td>{{ number_format($data['debt'], 0, ',', '.') }}</td>
