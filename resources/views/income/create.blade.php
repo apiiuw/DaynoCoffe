@@ -32,7 +32,11 @@
                         <div class="card order-card">
                             @php
                                 $now = \Carbon\Carbon::now('Asia/Jakarta');
+                                
+                                // Jika ingin menambahkan 1 bulan ke belakang maka $startOfMonth = $now->copy()->subMonth(1)->startOfMonth()->format('Y-m-d');
                                 $startOfMonth = $now->copy()->startOfMonth()->format('Y-m-d');
+
+                                // Jika ingin menambahkan 1 bulan ke kedepan maka $endOfMonth = $now->copy()->subMonth(-1)->endOfMonth()->format('Y-m-d');
                                 $endOfMonth = $now->copy()->endOfMonth()->format('Y-m-d');
                             @endphp
                             <div class="card-body">

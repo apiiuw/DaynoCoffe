@@ -26,7 +26,7 @@
 
                                     <div class="form-group">
                                         <label for="category">Kategori Menu</label>
-                                        <select class="form-control" id="category" name="category" required>
+                                        <select class="form-control" style="pointer-events: none" @readonly(true) id="category" name="category" required>
                                             <option value="">-- Pilih Kategori --</option>
                                             <option value="Espresso Based" {{ $menu->category == 'Espresso Based' ? 'selected' : '' }}>Espresso Based</option>
                                             <option value="Milk Based" {{ $menu->category == 'Milk Based' ? 'selected' : '' }}>Milk Based</option>
@@ -40,17 +40,17 @@
                                     <!-- Inputan untuk kategori Other -->
                                     <div class="form-group" id="other-category" style="{{ !in_array($menu->category, ['Espresso Based', 'Milk Based', 'Manual Brew', 'Tea Based', 'Food']) ? 'display: block;' : 'display: none;' }}">
                                         <label for="other-category-input">Kategori Lainnya</label>
-                                        <input type="text" class="form-control" id="other-category-input" name="other_category" value="{{ !in_array($menu->category, ['Espresso Based', 'Milk Based', 'Manual Brew', 'Tea Based', 'Food']) ? $menu->category : '' }}" placeholder="Ketikkan kategori lain...">
+                                        <input type="text" class="form-control" id="other-category-input" name="other_category" readonly value="{{ !in_array($menu->category, ['Espresso Based', 'Milk Based', 'Manual Brew', 'Tea Based', 'Food']) ? $menu->category : '' }}" placeholder="Ketikkan kategori lain...">
                                     </div>
 
                                     <div class="form-group">
                                         <label for="menu">Nama Menu</label>
-                                        <input type="text" class="form-control" name="menu" value="{{ $menu->menu }}" required>
+                                        <input type="text" class="form-control" name="menu" value="{{ $menu->menu }}" readonly required>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="price">Harga Satuan</label>
-                                        <input type="text" class="form-control" id="price" name="price" value="Rp {{ number_format($menu->price, 0, ',', '.') }}" required>
+                                        <input type="text" class="form-control" id="price" name="price" value="Rp {{ number_format($menu->price, 0, ',', '.') }}" readonly required>
                                     </div>
 
                                     <div class="form-group">

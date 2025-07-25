@@ -171,7 +171,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Diagram Pemasukan per Bulan</h3>
+                        <h3 class="card-title">Diagram Pemasukan</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
