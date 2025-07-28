@@ -165,12 +165,6 @@
                             <p style="color: white;">Pemasukan</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{ route('manage-menu.index') }}" class="nav-link">
-                            <i class="nav-icon fa-solid fa-clipboard-list"></i>
-                            <p style="color: white;">Kelola Menu</p>
-                        </a>
-                    </li>
                 @endif
 
                 {{-- ROLE: MANAGER --}}
@@ -185,6 +179,12 @@
                         <a href="{{ route('manage-expanses.index') }}" class="nav-link">
                             <i class="nav-icon fa-solid fa-layer-group"></i>
                             <p style="color: white;">Kelola Kategori</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('manage-menu.index') }}" class="nav-link">
+                            <i class="nav-icon fa-solid fa-clipboard-list"></i>
+                            <p style="color: white;">Kelola Menu</p>
                         </a>
                     </li>
                 @endif
